@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block page %}add_achievement{% endblock %}
+{% block title %}Добавить достижение — Cascade{% endblock %}
+{% block content %}
+<section class="page-section">
+  <h1>Добавить достижение</h1>
+
+  <div class="tabs" role="tablist">
+    <button type="button" class="tab tab--active" data-tab="certificate" role="tab">Грамота</button>
+    <button type="button" class="tab" data-tab="article" role="tab">Статья</button>
+    <button type="button" class="tab" data-tab="competition" role="tab">Конкурс</button>
+  </div>
+
+  <form id="achievement-form" class="card form-card">
+    <div data-tab-panel="certificate">
+      <h2 class="form-card__title">Грамота / диплом</h2>
+      <p class="muted">Ручной ввод или загрузка файла с имитацией распознавания.</p>
+
+      <div class="submode">
+        <label><input type="radio" name="gramota_mode" value="manual" checked /> Вручную</label>
+        <label><input type="radio" name="gramota_mode" value="scan" /> Сканирование (мок)</label>
+      </div>
+
+      <label class="form-field form-field--file">
+        <span>Файл (для скана обязателен; в ручном режиме — по желанию)</span>
+        <input type="file" id="achievement-file" name="file" accept="image/*,.pdf" />
+      </label>
+      <div id="file-preview" class="file-preview"></div>
+      <p id="ocr-status" class="muted" role="status"></p>
+
+      <div id="gramota-manual">
+        <label class="form-field">
+          <span>Название</span>
+          <input type="text" name="cert_title" />
+        </label>
+        <label class="form-field">
+          <span>Дата</span>
+          <input type="date" name="cert_issueDate" />
+        </label>
+        <label class="form-field">
+          <span>Уровень</span>
+          <input type="text" name="cert_level" placeholder="Региональный, федеральный…" />
+        </label>
+      </div>
+
+      <div id="gramota-scan" hidden>
+        <label class="form-field">
+          <span>Название (после распознавания)</span>
+          <input type="text" name="scan_title" />
+        </label>
+        <label class="form-field">
+          <span>Дата</span>
+          <input type="date" name="scan_issueDate" />
+        </label>
+        <label class="form-field">
+          <span>Уровень</span>
+          <input type="text" name="scan_level" />
+        </label>
+        <label class="form-field">
+          <span>Описание</span>
+          <textarea name="scan_description" rows="2"></textarea>
+        </label>
+      </div>
+    </div>
+
+    <div data-tab-panel="article" hidden>
+      <h2 class="form-card__title">Публикация</h2>
+      <label class="form-field">
+        <span>Название</span>
+        <input type="text" name="art_title" />
+      </label>
+      <label class="form-field">
+        <span>Ссылка на статью</span>
+        <input type="url" name="art_url" id="article-url" placeholder="https://…" />
+      </label>
+      <label class="form-field">
+        <span>Уровень (подставляется по ссылке, мок)</span>
+        <input type="text" name="art_level" id="article-level" readonly />
+      </label>
+      <label class="form-field">
+        <span>Дата</span>
+        <input type="date" name="art_issueDate" />
+      </label>
+    </div>
+
+    <div data-tab-panel="competition" hidden>
+      <h2 class="form-card__title">Конкурс / проект</h2>
+      <label class="form-field">
+        <span>Название</span>
+        <input type="text" name="comp_title" />
+      </label>
+      <label class="form-field">
+        <span>Уровень</span>
+        <input type="text" name="comp_level" />
+      </label>
+      <label class="form-field">
+        <span>Дата</span>
+        <input type="date" name="comp_issueDate" />
+      </label>
+    </div>
+
+    <p id="form-error" class="form-error" role="alert"></p>
+    <button type="submit" class="btn btn--primary">Сохранить</button>
+  </form>
+</section>
+{% endblock %}
