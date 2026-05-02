@@ -43,9 +43,12 @@ export function optionalUrl(value) {
     return "Введите корректную ссылку";
   }
 }
+<<<<<<< HEAD
 
 export function oneOf(value, allowed, message = "Выбрано недопустимое значение") {
   const s = String(value ?? "").trim();
   if (!s) return "Обязательное поле";
   return allowed.includes(s) ? null : message;
 }
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d

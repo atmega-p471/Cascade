@@ -14,11 +14,19 @@
   <form id="achievement-form" class="card form-card">
     <div data-tab-panel="certificate">
       <h2 class="form-card__title">Грамота / диплом</h2>
+<<<<<<< HEAD
       <p class="muted">Ручной ввод или загрузка фото грамоты с автоматическим распознаванием.</p>
 
       <div class="submode">
         <label><input type="radio" name="gramota_mode" value="manual" checked /> Вручную</label>
         <label><input type="radio" name="gramota_mode" value="scan" /> Сканирование</label>
+=======
+      <p class="muted">Ручной ввод или загрузка файла с имитацией распознавания.</p>
+
+      <div class="submode">
+        <label><input type="radio" name="gramota_mode" value="manual" checked /> Вручную</label>
+        <label><input type="radio" name="gramota_mode" value="scan" /> Сканирование (мок)</label>
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
       </div>
 
       <label class="form-field form-field--file">
@@ -39,6 +47,7 @@
         </label>
         <label class="form-field">
           <span>Уровень</span>
+<<<<<<< HEAD
           <select name="cert_level">
             <option value="">Выберите уровень</option>
             <option value="Международный">Международный</option>
@@ -55,6 +64,9 @@
             <option value="Призёр">Призёр</option>
             <option value="Участник">Участник</option>
           </select>
+=======
+          <input type="text" name="cert_level" placeholder="Региональный, федеральный…" />
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
         </label>
       </div>
 
@@ -69,6 +81,7 @@
         </label>
         <label class="form-field">
           <span>Уровень</span>
+<<<<<<< HEAD
           <select name="scan_level">
             <option value="">Выберите уровень</option>
             <option value="Международный">Международный</option>
@@ -85,6 +98,9 @@
             <option value="Призёр">Призёр</option>
             <option value="Участник">Участник</option>
           </select>
+=======
+          <input type="text" name="scan_level" />
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
         </label>
         <label class="form-field">
           <span>Описание</span>

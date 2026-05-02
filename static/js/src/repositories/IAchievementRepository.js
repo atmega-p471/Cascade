@@ -8,7 +8,10 @@
  * @property {string} title
  * @property {string} issueDate
  * @property {string} level
+<<<<<<< HEAD
  * @property {string} place
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
  * @property {string} [description]
  */
 

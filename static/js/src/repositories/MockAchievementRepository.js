@@ -1,10 +1,13 @@
 import { STORAGE_KEYS } from "../config.js";
 import { Achievement } from "../models/Achievement.js";
+<<<<<<< HEAD
 import {
   CERTIFICATE_LEVEL_VALUES,
   CERTIFICATE_PLACE_VALUES,
   calculateCertificatePoints,
 } from "../utils/achievementRules.js";
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 import { IAchievementRepository } from "./IAchievementRepository.js";
 
 function uid() {
@@ -60,10 +63,16 @@ export class MockAchievementRepository extends IAchievementRepository {
         kind: "certificate",
         title: "Диплом победителя олимпиады «Я — профессионал»",
         description: "Направление: информатика",
+<<<<<<< HEAD
         level: "Всеросийский",
         place: "Победитель",
         issueDate: "2024-05-10",
         points: calculateCertificatePoints("Всеросийский", "Победитель"),
+=======
+        level: "Федеральный",
+        issueDate: "2024-05-10",
+        points: 35,
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
       }),
       new Achievement({
         id: uid(),
@@ -96,8 +105,12 @@ export class MockAchievementRepository extends IAchievementRepository {
   /** @param {Achievement} a */
   async create(a) {
     const list = readList();
+<<<<<<< HEAD
     const payload = this._normalizeCertificate({ ...a });
     const next = new Achievement({ ...payload, id: payload.id || uid() });
+=======
+    const next = new Achievement({ ...a, id: a.id || uid() });
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
     list.push(next);
     writeList(list);
     return next;
@@ -108,7 +121,11 @@ export class MockAchievementRepository extends IAchievementRepository {
     const list = readList();
     const i = list.findIndex((x) => x.id === a.id);
     if (i === -1) throw new Error("Достижение не найдено");
+<<<<<<< HEAD
     list[i] = new Achievement(this._normalizeCertificate({ ...a }));
+=======
+    list[i] = new Achievement({ ...a });
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
     writeList(list);
     return list[i];
   }
@@ -121,6 +138,7 @@ export class MockAchievementRepository extends IAchievementRepository {
   }
 
   /**
+<<<<<<< HEAD
    * OCR на клиенте: распознавание текста из изображения/скана грамоты.
    * @param {File} file
    */
@@ -138,6 +156,24 @@ export class MockAchievementRepository extends IAchievementRepository {
       place,
       description: "",
     };
+=======
+   * Имитация OCR: задержка и случайный набор тестовых полей.
+   * @param {File} file
+   */
+  async recognizeCertificateFromFile(file) {
+    const name = file?.name || "document.pdf";
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const idx = Math.floor(Math.random() * MOCK_LEVELS.length);
+        resolve({
+          title: `Грамота «${name.replace(/\.[^.]+$/, "")}» (мок)`,
+          issueDate: new Date().toISOString().slice(0, 10),
+          level: MOCK_LEVELS[idx],
+          description: "Автозаполнение тестовыми данными (распознавание имитируется).",
+        });
+      }, 600 + Math.random() * 400);
+    });
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
   }
 
   /**
@@ -154,6 +190,7 @@ export class MockAchievementRepository extends IAchievementRepository {
       setTimeout(() => resolve(pick), 250);
     });
   }
+<<<<<<< HEAD
 
   _normalizeCertificate(a) {
     if (a.kind !== "certificate") return a;
@@ -299,4 +336,6 @@ function normalizePlace(value) {
     .replace(/[|]/g, "i")
     .replace(/\bl\b/g, "i")
     .replace(/i{2,}/g, "ii");
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 }

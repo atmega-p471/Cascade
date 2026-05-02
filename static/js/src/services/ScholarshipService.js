@@ -1,9 +1,12 @@
 import { Scholarship } from "../models/Scholarship.js";
+<<<<<<< HEAD
 import {
   CERTIFICATE_LEVEL_VALUES,
   CERTIFICATE_PLACE_VALUES,
   calculateCertificatePoints,
 } from "../utils/achievementRules.js";
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 
 /**
  * Агрегация баллов по достижениям (мок на фронте).
@@ -29,7 +32,11 @@ export class ScholarshipService {
     const byKind = { certificate: 0, article: 0, competition: 0 };
     let totalPoints = 0;
     for (const a of list) {
+<<<<<<< HEAD
       const p = this._resolvePoints(a);
+=======
+      const p = Number(a.points) || 0;
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
       totalPoints += p;
       if (a.kind in byKind) byKind[a.kind] += p;
     }
@@ -56,6 +63,7 @@ export class ScholarshipService {
       periodLabel,
     });
   }
+<<<<<<< HEAD
 
   _resolvePoints(a) {
     if (
@@ -67,4 +75,6 @@ export class ScholarshipService {
     }
     return Number(a.points) || 0;
   }
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 }

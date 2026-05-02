@@ -12,7 +12,10 @@ export class Achievement {
    * @param {string} data.title
    * @param {string} [data.description]
    * @param {string} [data.level] — уровень (ВАК, Scopus, региональный и т.д.)
+<<<<<<< HEAD
    * @param {string} [data.place] — результат участия (Победитель, Призёр, Участник)
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
    * @param {string} [data.issueDate]
    * @param {string} [data.articleUrl]
    * @param {string} [data.fileName]
@@ -26,7 +29,10 @@ export class Achievement {
     title,
     description = "",
     level = "",
+<<<<<<< HEAD
     place = "",
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
     issueDate = "",
     articleUrl = "",
     fileName = "",
@@ -39,7 +45,10 @@ export class Achievement {
     this.title = title;
     this.description = description;
     this.level = level;
+<<<<<<< HEAD
     this.place = place;
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
     this.issueDate = issueDate;
     this.articleUrl = articleUrl;
     this.fileName = fileName;

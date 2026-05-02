@@ -1,11 +1,14 @@
 import { Achievement } from "../models/Achievement.js";
 import * as v from "../utils/validators.js";
 import { readFileAsDataURL, isImageDataUrl } from "../utils/fileUpload.js";
+<<<<<<< HEAD
 import {
   CERTIFICATE_LEVEL_VALUES,
   CERTIFICATE_PLACE_VALUES,
   calculateCertificatePoints,
 } from "../utils/achievementRules.js";
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 
 export class AddAchievementView {
   /**
@@ -32,6 +35,7 @@ export class AddAchievementView {
 
     let currentKind = "certificate";
     let gramotaSub = "manual";
+<<<<<<< HEAD
     const setSectionEnabled = (container, enabled) => {
       if (!container) return;
       container.querySelectorAll("input, select, textarea").forEach((el) => {
@@ -48,6 +52,8 @@ export class AddAchievementView {
       setSectionEnabled(scan, gramotaSub === "scan");
     };
 
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
     let lastFile = /** @type {File | null} */ (null);
     let lastDataUrl = "";
 
@@ -66,10 +72,19 @@ export class AddAchievementView {
     gramotaMode.forEach((r) => {
       r.addEventListener("change", () => {
         gramotaSub = r.value;
+<<<<<<< HEAD
         syncGramotaModeState();
       });
     });
     syncGramotaModeState();
+=======
+        const manual = document.getElementById("gramota-manual");
+        const scan = document.getElementById("gramota-scan");
+        if (manual) manual.hidden = gramotaSub !== "manual";
+        if (scan) scan.hidden = gramotaSub !== "scan";
+      });
+    });
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 
     let urlTimer = 0;
     if (articleUrl && articleLevel) {
@@ -111,6 +126,7 @@ export class AddAchievementView {
             preview.innerHTML = `<p class="muted">Файл загружен: <strong>${escapeHtml(f.name)}</strong> (предпросмотр изображения недоступен)</p>`;
           }
           if (gramotaSub === "scan" && ocrStatus) {
+<<<<<<< HEAD
             ocrStatus.textContent = "Распознавание текста на фото…";
             const data = await this.svc.recognizeCertificate(f);
             ocrStatus.textContent = "Распознавание завершено";
@@ -118,11 +134,22 @@ export class AddAchievementView {
             const issue = form.querySelector('[name="scan_issueDate"]');
             const level = form.querySelector('[name="scan_level"]');
             const place = form.querySelector('[name="scan_place"]');
+=======
+            ocrStatus.textContent = "Распознавание…";
+            const data = await this.svc.recognizeCertificate(f);
+            ocrStatus.textContent = "Готово (тестовые данные)";
+            const title = form.querySelector('[name="scan_title"]');
+            const issue = form.querySelector('[name="scan_issueDate"]');
+            const level = form.querySelector('[name="scan_level"]');
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
             const desc = form.querySelector('[name="scan_description"]');
             if (title) title.value = data.title;
             if (issue) issue.value = data.issueDate;
             if (level) level.value = data.level;
+<<<<<<< HEAD
             if (place) place.value = data.place;
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
             if (desc) desc.value = data.description || "";
           }
         } catch (e) {
@@ -142,12 +169,18 @@ export class AddAchievementView {
             const title = String(fd.get("cert_title") || "");
             const issueDate = String(fd.get("cert_issueDate") || "");
             const level = String(fd.get("cert_level") || "");
+<<<<<<< HEAD
             const place = String(fd.get("cert_place") || "");
             const t1 = v.required(title);
             const t2 = v.oneOf(level, CERTIFICATE_LEVEL_VALUES, "Выберите корректный уровень");
             const t3 = v.oneOf(place, CERTIFICATE_PLACE_VALUES, "Выберите корректное место");
             if (t1 || t2 || t3) {
               if (err) err.textContent = t1 || t2 || t3 || "";
+=======
+            const t1 = v.required(title);
+            if (t1) {
+              if (err) err.textContent = t1;
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
               return;
             }
             const file = fileInput?.files?.[0];
@@ -164,10 +197,16 @@ export class AddAchievementView {
               title,
               issueDate,
               level,
+<<<<<<< HEAD
               place,
               fileName,
               fileDataUrl,
               points: calculateCertificatePoints(level, place),
+=======
+              fileName,
+              fileDataUrl,
+              points: 30,
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
             });
             await this.svc.add(ach);
           } else {
@@ -179,6 +218,7 @@ export class AddAchievementView {
             const title = String(fd.get("scan_title") || "");
             const issueDate = String(fd.get("scan_issueDate") || "");
             const level = String(fd.get("scan_level") || "");
+<<<<<<< HEAD
             const place = String(fd.get("scan_place") || "");
             const description = String(fd.get("scan_description") || "");
             const t1 = v.required(title);
@@ -186,6 +226,12 @@ export class AddAchievementView {
             const t3 = v.oneOf(place, CERTIFICATE_PLACE_VALUES, "Выберите корректное место");
             if (t1 || t2 || t3) {
               if (err) err.textContent = t1 || t2 || t3 || "";
+=======
+            const description = String(fd.get("scan_description") || "");
+            const t1 = v.required(title);
+            if (t1) {
+              if (err) err.textContent = t1;
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
               return;
             }
             const fileDataUrl = lastDataUrl || (await readFileAsDataURL(lastFile));
@@ -197,10 +243,16 @@ export class AddAchievementView {
               description,
               issueDate,
               level,
+<<<<<<< HEAD
               place,
               fileName: lastFile.name,
               fileDataUrl,
               points: calculateCertificatePoints(level, place),
+=======
+              fileName: lastFile.name,
+              fileDataUrl,
+              points: 35,
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
             });
             await this.svc.add(ach);
           }

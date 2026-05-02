@@ -1,9 +1,12 @@
 import { formatDateRu, formatPoints } from "../utils/formatters.js";
+<<<<<<< HEAD
 import {
   CERTIFICATE_LEVEL_VALUES,
   CERTIFICATE_PLACE_VALUES,
   calculateCertificatePoints,
 } from "../utils/achievementRules.js";
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 import { ProfileView } from "./ProfileView.js";
 
 export class DashboardView {
@@ -38,7 +41,11 @@ export class DashboardView {
       set("dash-role", u.role === "admin" ? "Администратор" : "Студент");
       set("dash-group", u.group || "—");
       set("dash-phone", u.phone || "—");
+<<<<<<< HEAD
       const sum = this.store.achievements.reduce((s, a) => s + resolveAchievementPoints(a), 0);
+=======
+      const sum = this.store.achievements.reduce((s, a) => s + (Number(a.points) || 0), 0);
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
       set("dash-points-sum", formatPoints(sum));
     };
 
@@ -59,7 +66,10 @@ export class DashboardView {
           </header>
           <h3 class="achievement-card__title">${escapeHtml(a.title)}</h3>
           ${a.level ? `<p class="achievement-card__meta">Уровень: ${escapeHtml(a.level)}</p>` : ""}
+<<<<<<< HEAD
           ${a.place ? `<p class="achievement-card__meta">Место: ${escapeHtml(a.place)}</p>` : ""}
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
           ${a.articleUrl ? `<p class="achievement-card__meta"><a href="${escapeAttr(a.articleUrl)}" target="_blank" rel="noopener">Ссылка</a></p>` : ""}
           <p class="achievement-card__points">Баллы: <strong>${a.points}</strong></p>
           <button type="button" class="btn btn--ghost btn--small" data-del="${escapeAttr(a.id)}">Удалить</button>
@@ -93,6 +103,7 @@ export class DashboardView {
   }
 }
 
+<<<<<<< HEAD
 function resolveAchievementPoints(a) {
   if (
     a.kind === "certificate" &&
@@ -104,6 +115,8 @@ function resolveAchievementPoints(a) {
   return Number(a.points) || 0;
 }
 
+=======
+>>>>>>> ec604b87af9df9c22584a12845c11e3ac2e03b5d
 function escapeHtml(s) {
   return String(s)
     .replace(/&/g, "&amp;")
