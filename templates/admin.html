@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block page %}admin{% endblock %}
+{% block title %}Админ — Cascade{% endblock %}
+{% block content %}
+<section class="page-section">
+  <h1>Админ-панель</h1>
+  <p class="muted">Сводка по пользователям и их достижениям (данные из мок-хранилища).</p>
+  <div id="admin-users" class="admin-grid"></div>
+</section>
+{% endblock %}

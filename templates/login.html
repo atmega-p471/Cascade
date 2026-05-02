@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block page %}login{% endblock %}
+{% block title %}Вход — Cascade{% endblock %}
+{% block content %}
+<section class="auth-hero">
+  <div class="auth-card card">
+    <h1>Вход</h1>
+    <p class="muted">Тестовый админ: <code>admin@admin.com</code> / <code>12345678</code> (студ. билет 000000)</p>
+    <form id="login-form" class="form" novalidate>
+      <label class="form-field">
+        <span>Email</span>
+        <input type="email" name="email" required autocomplete="username" />
+      </label>
+      <label class="form-field">
+        <span>Пароль</span>
+        <input type="password" name="password" required autocomplete="current-password" />
+      </label>
+      <p id="form-error" class="form-error" role="alert"></p>
+      <button type="submit" class="btn btn--primary btn--block">Войти</button>
+      <p class="form-footer"><a href="{% url 'register' %}">Нет аккаунта? Регистрация</a></p>
+    </form>
+  </div>
+</section>
+{% endblock %}

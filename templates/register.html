@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block page %}register{% endblock %}
+{% block title %}Регистрация — Cascade{% endblock %}
+{% block content %}
+<section class="auth-hero">
+  <div class="auth-card card">
+    <h1>Регистрация</h1>
+    <form id="register-form" class="form" novalidate>
+      <label class="form-field">
+        <span>ФИО</span>
+        <input type="text" name="fullName" required autocomplete="name" />
+      </label>
+      <label class="form-field">
+        <span>Email</span>
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+      <label class="form-field">
+        <span>Студенческий билет (6 цифр)</span>
+        <input type="text" name="studentId" inputmode="numeric" pattern="\d{6}" required />
+      </label>
+      <label class="form-field">
+        <span>Группа</span>
+        <input type="text" name="group" autocomplete="organization" />
+      </label>
+      <label class="form-field">
+        <span>Телефон</span>
+        <input type="tel" name="phone" autocomplete="tel" />
+      </label>
+      <label class="form-field">
+        <span>Пароль</span>
+        <input type="password" name="password" required autocomplete="new-password" minlength="8" />
+      </label>
+      <label class="form-field">
+        <span>Повтор пароля</span>
+        <input type="password" name="password2" required autocomplete="new-password" minlength="8" />
+      </label>
+      <p id="form-error" class="form-error" role="alert"></p>
+      <button type="submit" class="btn btn--primary btn--block">Создать аккаунт</button>
+      <p class="form-footer"><a href="{% url 'login' %}">Уже есть аккаунт? Вход</a></p>
+    </form>
+  </div>
+</section>
+{% endblock %}

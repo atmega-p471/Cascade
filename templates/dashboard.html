@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block page %}dashboard{% endblock %}
+{% block title %}Личный кабинет — Cascade{% endblock %}
+{% block content %}
+<section class="page-section cabinet">
+  <header class="page-header">
+    <h1>Личный кабинет</h1>
+    <p class="muted">Здесь ваши данные, достижения и сумма баллов. Профиль в шапке ведёт сюда же.</p>
+    <div class="page-actions">
+      <a class="btn btn--primary" href="{% url 'add_achievement' %}">Добавить достижение</a>
+      <a class="btn btn--secondary" href="{% url 'calculate' %}">Подробно по баллам</a>
+    </div>
+  </header>
+
+  <div class="cabinet-top">
+    <div class="card user-summary-card">
+      <h2 class="card-heading">О вас</h2>
+      <dl class="user-dl" id="dashboard-user-dl">
+        <div><dt>ФИО</dt><dd id="dash-fullname">—</dd></div>
+        <div><dt>Email</dt><dd id="dash-email">—</dd></div>
+        <div><dt>Студ. билет</dt><dd id="dash-student-id">—</dd></div>
+        <div><dt>Роль</dt><dd id="dash-role">—</dd></div>
+        <div><dt>Группа</dt><dd id="dash-group">—</dd></div>
+        <div><dt>Телефон</dt><dd id="dash-phone">—</dd></div>
+      </dl>
+      <div class="points-strip" id="dashboard-points-strip" aria-live="polite">
+        <span class="points-strip__label">Сумма баллов за достижения</span>
+        <strong class="points-strip__value" id="dash-points-sum">—</strong>
+      </div>
+    </div>
+
+    <div class="card profile-inline-card">
+      <h2 class="card-heading">Изменить данные</h2>
+      <form id="profile-form" class="form">
+        <label class="form-field">
+          <span>ФИО</span>
+          <input type="text" name="fullName" required />
+        </label>
+        <label class="form-field">
+          <span>Группа</span>
+          <input type="text" name="group" />
+        </label>
+        <label class="form-field">
+          <span>Телефон</span>
+          <input type="tel" name="phone" />
+        </label>
+        <p id="form-error" class="form-error" role="alert"></p>
+        <p id="form-success" class="form-success" role="status"></p>
+        <button type="submit" class="btn btn--primary">Сохранить</button>
+      </form>
+    </div>
+  </div>
+
+  <h2 class="section-heading">Мои достижения</h2>
+  <div id="dashboard-achievements" class="grid-cards"></div>
+</section>
+{% endblock %}
