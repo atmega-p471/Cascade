@@ -1,0 +1,15 @@
+{% extends "core/base.html" %}
+{% block title %}Редактирование грамоты{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Редактирование грамоты</h1>
+    <p><strong>Пользователь:</strong> {{ certificate.user.username }}</p>
+    <p><strong>Файл:</strong> <a href="{{ certificate.file.url }}" target="_blank">Открыть</a></p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+    <a class="btn danger" href="{% url 'admin_certificate_delete' certificate.pk %}">Удалить грамоту</a>
+</section>
+{% endblock %}

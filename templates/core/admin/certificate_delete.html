@@ -1,0 +1,11 @@
+{% extends "core/base.html" %}
+{% block title %}Удаление грамоты{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Удалить грамоту "{{ certificate.title }}"?</h1>
+    <form method="post">
+        {% csrf_token %}
+        <button class="danger" type="submit">Удалить</button>
+    </form>
+</section>
+{% endblock %}

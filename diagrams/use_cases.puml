@@ -1,0 +1,40 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+
+actor "Студент" as Student
+actor "Администратор" as Admin
+
+rectangle "PGAS Platform" {
+  usecase "Вход в систему" as UC_Login
+  usecase "Редактировать профиль" as UC_Profile
+  usecase "Загрузить грамоту" as UC_Upload
+  usecase "Просмотреть грамоты" as UC_List
+  usecase "Открыть детали грамоты" as UC_Detail
+  usecase "Рассчитать баллы\nна стипендию" as UC_Calc
+  usecase "Просматривать файлы" as UC_Files
+
+  usecase "Управлять пользователями" as UC_UserMgmt
+  usecase "Модерировать грамоты" as UC_CertMgmt
+  usecase "Корректировать баллы" as UC_Adjust
+  usecase "Смотреть статистику" as UC_Stat
+}
+
+Student --> UC_Login
+Student --> UC_Profile
+Student --> UC_Upload
+Student --> UC_List
+Student --> UC_Detail
+Student --> UC_Calc
+Student --> UC_Files
+
+Admin --> UC_Login
+Admin --> UC_UserMgmt
+Admin --> UC_CertMgmt
+Admin --> UC_Adjust
+Admin --> UC_Stat
+Admin --> UC_Files
+
+UC_Calc ..> UC_List : <<include>>
+UC_CertMgmt ..> UC_Detail : <<include>>
+@enduml

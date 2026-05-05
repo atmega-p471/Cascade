@@ -1,0 +1,62 @@
+{% extends "core/base.html" %}
+{% block title %}Грамоты{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Мои грамоты</h1>
+    <form method="get" class="inline">
+        <select name="level">
+            <option value="">Все уровни</option>
+            <option value="city" {% if selected_level == "city" %}selected{% endif %}>Городской</option>
+            <option value="region" {% if selected_level == "region" %}selected{% endif %}>Областной</option>
+            <option value="national" {% if selected_level == "national" %}selected{% endif %}>Всероссийский</option>
+            <option value="international" {% if selected_level == "international" %}selected{% endif %}>Международный</option>
+            <option value="university" {% if selected_level == "university" %}selected{% endif %}>Вузовский</option>
+        </select>
+        <select name="place">
+            <option value="">Любое место</option>
+            <option value="participant" {% if selected_place == "participant" %}selected{% endif %}>Участник</option>
+            <option value="prize_winner" {% if selected_place == "prize_winner" %}selected{% endif %}>Призер</option>
+            <option value="winner" {% if selected_place == "winner" %}selected{% endif %}>Победитель</option>
+        </select>
+        <select name="sort">
+            <option value="-event_date" {% if sort == "-event_date" %}selected{% endif %}>Сначала новые</option>
+            <option value="event_date" {% if sort == "event_date" %}selected{% endif %}>Сначала старые</option>
+            <option value="-auto_points" {% if sort == "-auto_points" %}selected{% endif %}>Баллы по убыванию</option>
+            <option value="auto_points" {% if sort == "auto_points" %}selected{% endif %}>Баллы по возрастанию</option>
+        </select>
+        <label><input type="checkbox" name="archived" value="1" {% if show_archived %}checked{% endif %}> Показать архив</label>
+        <button type="submit">Применить</button>
+    </form>
+</section>
+
+<section class="panel">
+    <table>
+        <thead>
+        <tr>
+            <th>Название</th>
+            <th>Уровень</th>
+            <th>Место</th>
+            <th>Дата</th>
+            <th>Баллы</th>
+            <th>Статус</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for c in certificates %}
+            <tr class="{% if c.is_expired %}expired{% endif %}">
+                <td>{{ c.title }}</td>
+                <td>{{ c.get_event_level_display }}</td>
+                <td>{{ c.get_place_display }}</td>
+                <td>{{ c.event_date }}</td>
+                <td>{{ c.points }}</td>
+                <td><span class="chip">{{ c.get_status_display }}</span></td>
+                <td><a href="{% url 'certificate_detail' c.pk %}">Открыть</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7">Нет грамот.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

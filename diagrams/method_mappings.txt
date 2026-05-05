@@ -1,0 +1,56 @@
+METHOD MAPPINGS
+
+A) URL -> View mapping
+- / -> dashboard
+- /login/ -> django.auth.LoginView
+- /logout/ -> logout_view
+- /profile/ -> profile_edit
+- /certificates/ -> certificate_list
+- /certificates/new/ -> certificate_create
+- /certificates/<pk>/ -> certificate_detail
+- /calculate/ -> calculate_scholarship
+- /files/ -> files_view
+- /management/users/ -> admin_user_list
+- /management/users/create/ -> admin_user_create
+- /management/users/<pk>/edit/ -> admin_user_edit
+- /management/users/<pk>/delete/ -> admin_user_delete
+- /management/users/<pk>/adjust/ -> admin_adjust_points
+- /management/certificates/ -> admin_certificate_list
+- /management/certificates/<pk>/edit/ -> admin_certificate_edit
+- /management/certificates/<pk>/delete/ -> admin_certificate_delete
+- /management/statistics/ -> admin_statistics
+
+B) Form -> Model mapping
+- StudentProfileForm -> StudentProfile (+ User.first_name, User.last_name)
+- CertificateForm -> Certificate
+- CertificateAdminForm -> Certificate
+- ScholarshipCalculationForm -> Scholarship (ModelChoiceField)
+- PointAdjustmentForm -> PointAdjustment
+- AdminUserCreateForm -> User
+- AdminUserUpdateForm -> User
+
+C) Role mapping
+- user.is_authenticated -> access to student endpoints
+- user.is_staff -> access to management endpoints
+
+D) Business mapping (points)
+- EVENT_LEVEL_SCORES:
+  city=5, region=10, national=15, international=20, university=8
+- PLACE_MULTIPLIER:
+  participant=1, prize_winner=2, winner=3
+- auto_points = EVENT_LEVEL_SCORES[event_level] * PLACE_MULTIPLIER[place]
+- effective_points = custom_points if custom_points is not null else auto_points
+
+E) Certificate status mapping
+- pending: загружена, ожидает проверки
+- approved: подтверждена и участвует в расчетах
+- rejected: отклонена
+- archived: архивная (в основном для просроченных)
+
+F) Filter/query mapping
+- /certificates/?level=... -> filter event_level
+- /certificates/?place=... -> filter place
+- /certificates/?sort=... -> order_by for allowed keys
+- /certificates/?archived=1 -> include archived
+- /management/certificates/?status=... -> admin status filter
+- /management/users/?q=... -> search by username/first_name/last_name

@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+{% block title %}Расчет ПГАС{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Расчет стипендии</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Рассчитать</button>
+    </form>
+</section>
+
+{% if result %}
+<section class="panel">
+    <h2>Результат: {{ result.scholarship.name }}</h2>
+    <p>Баллы за подтвержденные грамоты: <strong>{{ result.certificate_points }}</strong></p>
+    <p>Корректировки администратора: <strong>{{ result.adjustment_points }}</strong></p>
+    <p>Итог: <strong>{{ result.total }}</strong> (порог: {{ result.scholarship.min_points }})</p>
+    <p>
+        {% if result.eligible %}
+            <span class="chip">Подходит</span>
+        {% else %}
+            <span class="chip">Недостаточно баллов</span>
+        {% endif %}
+    </p>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+{% block title %}Статистика{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Статистика системы</h1>
+    <div class="grid">
+        <article class="stat">
+            <h3>По уровню мероприятий</h3>
+            {% for row in by_level %}
+                <p style="font-size:14px">{{ row.event_level }}: {{ row.total }}</p>
+            {% empty %}
+                <p style="font-size:14px">Нет данных</p>
+            {% endfor %}
+        </article>
+        <article class="stat">
+            <h3>По местам</h3>
+            {% for row in by_place %}
+                <p style="font-size:14px">{{ row.place }}: {{ row.total }}</p>
+            {% empty %}
+                <p style="font-size:14px">Нет данных</p>
+            {% endfor %}
+        </article>
+        <article class="stat">
+            <h3>Топ стипендий по расчетам</h3>
+            {% for row in top_scholarships %}
+                <p style="font-size:14px">{{ row.scholarship__name }}: {{ row.total }}</p>
+            {% empty %}
+                <p style="font-size:14px">Нет данных</p>
+            {% endfor %}
+        </article>
+        <article class="stat">
+            <h3>Пользователи по числу грамот</h3>
+            {% for row in by_user %}
+                <p style="font-size:14px">{{ row.user__username }}: {{ row.total }}</p>
+            {% empty %}
+                <p style="font-size:14px">Нет данных</p>
+            {% endfor %}
+        </article>
+    </div>
+</section>
+{% endblock %}

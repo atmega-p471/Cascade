@@ -1,0 +1,22 @@
+{% extends "core/base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Цифровое портфолио ПГАС</h1>
+    <div class="grid">
+        <article class="stat"><h3>Грамот загружено</h3><p>{{ certificates_count }}</p></article>
+        <article class="stat"><h3>На проверке</h3><p>{{ pending_count }}</p></article>
+        <article class="stat"><h3>Просроченных</h3><p>{{ expired_count }}</p></article>
+        <article class="stat"><h3>Подтверждено баллов</h3><p>{{ approved_points }}</p></article>
+        <article class="stat"><h3>Баллы с корректировками</h3><p>{{ total_points }}</p></article>
+        <article class="stat"><h3>Доступно стипендий</h3><p>{{ active_scholarships }}</p></article>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="inline">
+        <a class="btn" href="{% url 'certificate_create' %}">Загрузить грамоту</a>
+        <a class="btn btn-muted" href="{% url 'calculate_scholarship' %}">Рассчитать стипендию</a>
+    </div>
+</section>
+{% endblock %}

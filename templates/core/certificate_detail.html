@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% block title %}Грамота{% endblock %}
+{% block content %}
+<section class="panel {% if certificate.is_expired %}expired{% endif %}">
+    <h1 class="title">{{ certificate.title }}</h1>
+    <p><strong>Уровень:</strong> {{ certificate.get_event_level_display }}</p>
+    <p><strong>Место:</strong> {{ certificate.get_place_display }}</p>
+    <p><strong>Дата:</strong> {{ certificate.event_date }}</p>
+    <p><strong>Баллы:</strong> {{ certificate.points }}</p>
+    <p><strong>Статус:</strong> {{ certificate.get_status_display }}</p>
+    <p><strong>Файл:</strong> <a href="{{ certificate.file.url }}" target="_blank">Открыть</a></p>
+    {% if certificate.extracted_text %}
+        <h3>Распознанный текст</h3>
+        <pre style="white-space: pre-wrap;">{{ certificate.extracted_text }}</pre>
+    {% endif %}
+</section>
+{% endblock %}

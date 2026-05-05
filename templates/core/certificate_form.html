@@ -1,0 +1,13 @@
+{% extends "core/base.html" %}
+{% block title %}Новая грамота{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Загрузка грамоты</h1>
+    <p>На телефоне можно сразу открыть камеру: поле файла поддерживает <code>capture="environment"</code>.</p>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Загрузить</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,119 @@
+METHOD INPUT/OUTPUT MESSAGES
+
+1) dashboard
+IN:
+- GET, auth session cookie
+OUT:
+- HTML: counters (certificates_count, pending_count, expired_count, approved_points, total_points)
+
+2) login (LoginView)
+IN:
+- POST form: username, password
+OUT:
+- success: 302 to dashboard
+- fail: HTML with auth errors
+
+3) logout_view
+IN:
+- GET or POST, optional auth session
+OUT:
+- 302 to /login/, session terminated
+
+4) profile_edit
+IN:
+- GET: none
+- POST multipart: first_name, last_name, record_book_number, birth_date, institution, specialty, course, study_form, portfolio(file)
+OUT:
+- success: 302 to /profile/
+- fail: HTML with form errors
+
+5) certificate_list
+IN:
+- GET query: level, place, sort, archived
+OUT:
+- HTML table of user certificates with computed points and statuses
+
+6) certificate_detail
+IN:
+- GET path: certificate pk
+OUT:
+- HTML card with certificate metadata + file URL + extracted_text
+
+7) certificate_create
+IN:
+- POST multipart: title, file, event_level, place, event_date
+OUT:
+- success: certificate created, OCR attempted, 302 to list
+- fail: HTML form errors
+
+8) calculate_scholarship
+IN:
+- POST form: scholarship(id)
+OUT:
+- HTML result: certificate_points, adjustment_points, total, eligible
+- DB write: ScholarshipCalculation row
+
+9) files_view
+IN:
+- GET auth
+OUT:
+- HTML list: profile portfolio file + all certificate files
+
+10) admin_user_list
+IN:
+- GET query: q
+OUT:
+- HTML list of users (with role and edit links)
+
+11) admin_user_create
+IN:
+- POST: username, password1, password2, first_name, last_name, email, is_staff
+OUT:
+- success: user + StudentProfile created, 302 user list
+- fail: HTML errors
+
+12) admin_user_edit
+IN:
+- POST: user fields + profile fields (+portfolio file optional)
+OUT:
+- success: user/profile updated, 302 user list
+- fail: HTML errors
+
+13) admin_user_delete
+IN:
+- POST: confirmation intent
+OUT:
+- success: user deleted, 302 user list
+
+14) admin_adjust_points
+IN:
+- POST: value(int), reason(text)
+OUT:
+- success: PointAdjustment created, 302 to user edit
+- fail: HTML errors
+
+15) admin_certificate_list
+IN:
+- GET query: status
+OUT:
+- HTML list of all certificates with moderation links
+
+16) admin_certificate_edit
+IN:
+- POST: title, event_level, place, event_date, status, custom_points
+OUT:
+- success: certificate updated, 302 certificate list
+- fail: HTML errors
+
+17) admin_certificate_delete
+IN:
+- POST: confirmation intent
+OUT:
+- success: certificate deleted, 302 certificate list
+
+18) admin_statistics
+IN:
+- GET auth+admin
+OUT:
+- HTML analytics blocks:
+  by_level, by_place, top_scholarships, by_user

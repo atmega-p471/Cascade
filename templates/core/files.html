@@ -1,0 +1,23 @@
+{% extends "core/base.html" %}
+{% block title %}Файлы{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Файлы пользователя</h1>
+    {% if profile.portfolio %}
+        <p><strong>Портфолио:</strong> <a href="{{ profile.portfolio.url }}" target="_blank">Открыть</a></p>
+    {% else %}
+        <p>Портфолио не загружено.</p>
+    {% endif %}
+</section>
+
+<section class="panel">
+    <h2>Все грамоты</h2>
+    <ul>
+        {% for c in certificates %}
+            <li>{{ c.title }} — <a href="{{ c.file.url }}" target="_blank">Файл</a></li>
+        {% empty %}
+            <li>Нет загруженных файлов грамот.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

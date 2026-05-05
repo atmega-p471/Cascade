@@ -1,0 +1,66 @@
+Table auth_user {
+  id int [pk, increment]
+  username varchar
+  first_name varchar
+  last_name varchar
+  email varchar
+  is_staff boolean
+  is_active boolean
+  date_joined datetime
+}
+
+Table core_studentprofile {
+  id int [pk, increment]
+  user_id int [unique, not null, ref: > auth_user.id]
+  record_book_number varchar
+  birth_date date
+  institution varchar
+  specialty varchar
+  course smallint
+  study_form varchar
+  portfolio varchar
+}
+
+Table core_scholarship {
+  id int [pk, increment]
+  name varchar
+  description text
+  min_points int
+  is_active boolean
+}
+
+Table core_certificate {
+  id int [pk, increment]
+  user_id int [not null, ref: > auth_user.id]
+  title varchar
+  file varchar
+  event_level varchar
+  place varchar
+  event_date date
+  auto_points int
+  custom_points int
+  extracted_text text
+  status varchar
+  created_at datetime
+  updated_at datetime
+}
+
+Table core_pointadjustment {
+  id int [pk, increment]
+  user_id int [not null, ref: > auth_user.id]
+  created_by_id int [ref: > auth_user.id]
+  value int
+  reason text
+  created_at datetime
+}
+
+Table core_scholarshipcalculation {
+  id int [pk, increment]
+  user_id int [not null, ref: > auth_user.id]
+  scholarship_id int [not null, ref: > core_scholarship.id]
+  certificate_points int
+  adjustment_points int
+  total_points int
+  is_eligible boolean
+  created_at datetime
+}

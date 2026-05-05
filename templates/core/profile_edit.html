@@ -1,0 +1,12 @@
+{% extends "core/base.html" %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Профиль студента</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+</section>
+{% endblock %}

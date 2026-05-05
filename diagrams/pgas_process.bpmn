@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_1"
+  targetNamespace="http://bpmn.io/schema/bpmn">
+
+  <bpmn:process id="PGAS_Process" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_StudentNeed" name="Студент хочет подать на ПГАС">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Task_Login" name="Вход студента">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_UploadCert" name="Загрузка грамоты/портфолио">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="Task_AutoScoring" name="Авторасчет баллов">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:userTask id="Task_AdminReview" name="Проверка администратором">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Approved" name="Грамота подтверждена?">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_Recalculate" name="Расчет стипендии">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:endEvent id="EndEvent_Eligible" name="Результат расчета показан">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="EndEvent_Rejected" name="Отклонена/архивирована">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_StudentNeed" targetRef="Task_Login" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Login" targetRef="Task_UploadCert" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_UploadCert" targetRef="Task_AutoScoring" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_AutoScoring" targetRef="Task_AdminReview" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_AdminReview" targetRef="Gateway_Approved" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Gateway_Approved" targetRef="Task_Recalculate" name="Да" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Gateway_Approved" targetRef="EndEvent_Rejected" name="Нет" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_Recalculate" targetRef="EndEvent_Eligible" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="PGAS_Process" />
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

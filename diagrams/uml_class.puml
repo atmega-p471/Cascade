@@ -1,0 +1,68 @@
+@startuml
+hide methods
+skinparam classAttributeIconSize 0
+
+class User {
+  +id: int
+  +username: string
+  +first_name: string
+  +last_name: string
+  +email: string
+  +is_staff: bool
+}
+
+class StudentProfile {
+  +id: int
+  +record_book_number: string
+  +birth_date: date
+  +institution: string
+  +specialty: string
+  +course: int
+  +study_form: enum
+  +portfolio: file
+}
+
+class Certificate {
+  +id: int
+  +title: string
+  +file: file
+  +event_level: enum
+  +place: enum
+  +event_date: date
+  +auto_points: int
+  +custom_points: int?
+  +status: enum
+  +extracted_text: text
+}
+
+class Scholarship {
+  +id: int
+  +name: string
+  +description: text
+  +min_points: int
+  +is_active: bool
+}
+
+class PointAdjustment {
+  +id: int
+  +value: int
+  +reason: text
+  +created_at: datetime
+}
+
+class ScholarshipCalculation {
+  +id: int
+  +certificate_points: int
+  +adjustment_points: int
+  +total_points: int
+  +is_eligible: bool
+  +created_at: datetime
+}
+
+User "1" -- "1" StudentProfile
+User "1" -- "0..*" Certificate
+User "1" -- "0..*" PointAdjustment : target_user
+User "1" -- "0..*" PointAdjustment : created_by
+User "1" -- "0..*" ScholarshipCalculation
+Scholarship "1" -- "0..*" ScholarshipCalculation
+@enduml

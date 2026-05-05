@@ -1,0 +1,22 @@
+{% extends "core/base.html" %}
+{% block title %}Редактирование пользователя{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Редактирование {{ target_user.username }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h3>Учетная запись</h3>
+        {{ user_form.as_p }}
+        <h3>Профиль</h3>
+        {{ profile_form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="inline">
+        <a class="btn" href="{% url 'admin_adjust_points' target_user.pk %}">Корректировать баллы</a>
+        <a class="btn danger" href="{% url 'admin_user_delete' target_user.pk %}">Удалить пользователя</a>
+    </div>
+</section>
+{% endblock %}
