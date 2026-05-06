@@ -42,3 +42,28 @@ python manage.py runserver
 ## Мобильная загрузка
 
 Поле загрузки грамоты использует атрибуты `accept="image/*,.pdf"` и `capture="environment"`, поэтому на телефоне открывается камера/галерея для быстрого сканирования документа.
+
+## REST API (DRF + OpenAPI)
+
+- База API: `http://127.0.0.1:8000/api/v1/`
+- Swagger UI: `http://127.0.0.1:8000/api/v1/docs/`
+- ReDoc: `http://127.0.0.1:8000/api/v1/redoc/`
+- OpenAPI schema: `http://127.0.0.1:8000/api/v1/schema/`
+- Получение токена: `POST /api/v1/auth/token/` (`username`, `password`)
+
+Основные endpoints:
+
+- `GET|PUT|PATCH /api/v1/profile/`
+- `GET /api/v1/me/`
+- `GET|POST /api/v1/certificates/`
+- `GET /api/v1/certificates/{id}/`
+- `GET /api/v1/scholarships/`
+- `GET|POST /api/v1/calculations/`
+- `GET /api/v1/calculations/{id}/`
+
+Админ API:
+
+- `GET|POST|PUT|PATCH|DELETE /api/v1/admin/users/`
+- `GET|POST|PUT|PATCH|DELETE /api/v1/admin/certificates/`
+- `GET|POST|PUT|PATCH|DELETE /api/v1/admin/adjustments/`
+- `GET /api/v1/admin/statistics/`

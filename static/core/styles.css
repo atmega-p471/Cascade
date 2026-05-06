@@ -176,7 +176,6 @@ button,
     background: var(--blue);
     color: #fff;
     border: none;
-    cursor: pointer;
     font-weight: 700;
     text-decoration: none;
     display: inline-block;
