@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db.models import Count
 from rest_framework import mixins, permissions, viewsets
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
@@ -22,11 +24,13 @@ class ProfileApiView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    @extend_schema(responses=StudentProfileSerializer)
     def get(self, request):
         profile, _ = StudentProfile.objects.get_or_create(user=request.user)
         serializer = StudentProfileSerializer(profile)
         return Response(serializer.data)
 
+    @extend_schema(request=StudentProfileSerializer, responses=StudentProfileSerializer)
     def put(self, request):
         profile, _ = StudentProfile.objects.get_or_create(user=request.user)
         serializer = StudentProfileSerializer(profile, data=request.data, partial=False)
@@ -34,6 +38,7 @@ class ProfileApiView(APIView):
         serializer.save()
         return Response(serializer.data)
 
+    @extend_schema(request=StudentProfileSerializer, responses=StudentProfileSerializer)
     def patch(self, request):
         profile, _ = StudentProfile.objects.get_or_create(user=request.user)
         serializer = StudentProfileSerializer(profile, data=request.data, partial=True)
@@ -42,6 +47,17 @@ class ProfileApiView(APIView):
         return Response(serializer.data)
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+            )
+        ]
+    )
+)
 class CertificateApiViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
@@ -51,6 +67,8 @@ class CertificateApiViewSet(
     serializer_class = CertificateSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    queryset = Certificate.objects.none()
+    lookup_field = "pk"
 
     def get_queryset(self):
         queryset = Certificate.objects.filter(user=self.request.user)
@@ -82,6 +100,17 @@ class ScholarshipApiViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, vi
     queryset = Scholarship.objects.filter(is_active=True).order_by("name")
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+            )
+        ]
+    )
+)
 class ScholarshipCalculationApiViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
@@ -90,6 +119,7 @@ class ScholarshipCalculationApiViewSet(
 ):
     serializer_class = ScholarshipCalculationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = ScholarshipCalculation.objects.none()
 
     def get_queryset(self):
         return ScholarshipCalculation.objects.filter(user=self.request.user).select_related("scholarship")
@@ -119,6 +149,20 @@ class AdminPointAdjustmentApiViewSet(viewsets.ModelViewSet):
 class AdminStatisticsApiView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
+    @extend_schema(
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "by_level": {"type": "array", "items": {"type": "object"}},
+                    "by_place": {"type": "array", "items": {"type": "object"}},
+                    "top_scholarships": {"type": "array", "items": {"type": "object"}},
+                    "by_user": {"type": "array", "items": {"type": "object"}},
+                },
+                "required": ["by_level", "by_place", "top_scholarships", "by_user"],
+            }
+        }
+    )
     def get(self, request):
         by_level = (
             Certificate.objects.values("event_level")
@@ -146,6 +190,22 @@ class AdminStatisticsApiView(APIView):
         )
 
 
+@extend_schema(
+    responses={
+        200: {
+            "type": "object",
+            "properties": {
+                "id": {"type": "integer"},
+                "username": {"type": "string"},
+                "first_name": {"type": "string"},
+                "last_name": {"type": "string"},
+                "email": {"type": "string"},
+                "is_staff": {"type": "boolean"},
+            },
+            "required": ["id", "username", "first_name", "last_name", "email", "is_staff"],
+        }
+    }
+)
 @api_view(["GET"])
 @permission_classes([permissions.IsAuthenticated])
 def me_api(request):

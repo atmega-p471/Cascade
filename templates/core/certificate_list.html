@@ -21,9 +21,15 @@
         <select name="sort">
             <option value="-event_date" {% if sort == "-event_date" %}selected{% endif %}>Сначала новые</option>
             <option value="event_date" {% if sort == "event_date" %}selected{% endif %}>Сначала старые</option>
-            <option value="-auto_points" {% if sort == "-auto_points" %}selected{% endif %}>Баллы по убыванию</option>
-            <option value="auto_points" {% if sort == "auto_points" %}selected{% endif %}>Баллы по возрастанию</option>
+            <option value="-display_points" {% if sort == "-display_points" %}selected{% endif %}>Баллы по убыванию</option>
+            <option value="display_points" {% if sort == "display_points" %}selected{% endif %}>Баллы по возрастанию</option>
+            <option value="-created_at" {% if sort == "-created_at" %}selected{% endif %}>По дате загрузки (новые)</option>
+            <option value="created_at" {% if sort == "created_at" %}selected{% endif %}>По дате загрузки (старые)</option>
         </select>
+        <input type="date" name="date_from" value="{{ date_from }}" title="Дата с">
+        <input type="date" name="date_to" value="{{ date_to }}" title="Дата по">
+        <input type="number" name="min_points" value="{{ min_points }}" min="0" placeholder="Баллы от">
+        <input type="number" name="max_points" value="{{ max_points }}" min="0" placeholder="Баллы до">
         <label><input type="checkbox" name="archived" value="1" {% if show_archived %}checked{% endif %}> Показать архив</label>
         <button type="submit">Применить</button>
     </form>

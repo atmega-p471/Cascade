@@ -1,119 +1,174 @@
-METHOD INPUT/OUTPUT MESSAGES
+METHOD INPUT/OUTPUT MESSAGES (CURRENT STATE)
+
+WEB LAYER
 
 1) dashboard
 IN:
 - GET, auth session cookie
 OUT:
-- HTML: counters (certificates_count, pending_count, expired_count, approved_points, total_points)
+- HTML counters: certificates_count, pending_count, expired_count, approved_points, total_points, active_scholarships
 
 2) login (LoginView)
 IN:
 - POST form: username, password
 OUT:
 - success: 302 to dashboard
-- fail: HTML with auth errors
+- fail: 200 with auth errors
 
 3) logout_view
 IN:
-- GET or POST, optional auth session
+- GET or POST
 OUT:
 - 302 to /login/, session terminated
 
 4) profile_edit
 IN:
-- GET: none
+- GET
 - POST multipart: first_name, last_name, record_book_number, birth_date, institution, specialty, course, study_form, portfolio(file)
 OUT:
 - success: 302 to /profile/
-- fail: HTML with form errors
+- fail: 200 with form errors
 
 5) certificate_list
 IN:
-- GET query: level, place, sort, archived
+- GET query:
+  level, place, date_from, date_to, min_points, max_points, sort, archived
 OUT:
-- HTML table of user certificates with computed points and statuses
+- HTML table for current user certificates
+- points shown as effective value (custom_points if set else auto_points)
 
 6) certificate_detail
 IN:
 - GET path: certificate pk
 OUT:
-- HTML card with certificate metadata + file URL + extracted_text
+- HTML card with metadata, status, file URL and extracted_text
 
 7) certificate_create
 IN:
 - POST multipart: title, file, event_level, place, event_date
 OUT:
-- success: certificate created, OCR attempted, 302 to list
-- fail: HTML form errors
+- success: certificate created, OCR attempted, 302 to /certificates/
+- fail: 200 with form errors
 
 8) calculate_scholarship
 IN:
 - POST form: scholarship(id)
 OUT:
 - HTML result: certificate_points, adjustment_points, total, eligible
-- DB write: ScholarshipCalculation row
+- DB write: ScholarshipCalculation
 
 9) files_view
 IN:
 - GET auth
 OUT:
-- HTML list: profile portfolio file + all certificate files
+- HTML list: profile portfolio + all certificate files
 
 10) admin_user_list
 IN:
 - GET query: q
 OUT:
-- HTML list of users (with role and edit links)
+- HTML list of users (search by username/first_name/last_name)
 
 11) admin_user_create
 IN:
 - POST: username, password1, password2, first_name, last_name, email, is_staff
 OUT:
-- success: user + StudentProfile created, 302 user list
-- fail: HTML errors
+- success: user + StudentProfile created, 302
+- fail: 200 with form errors
 
 12) admin_user_edit
 IN:
-- POST: user fields + profile fields (+portfolio file optional)
+- POST user fields + profile fields (+portfolio file optional)
 OUT:
-- success: user/profile updated, 302 user list
-- fail: HTML errors
+- success: user/profile updated, 302
+- fail: 200 with form errors
 
 13) admin_user_delete
 IN:
-- POST: confirmation intent
+- POST confirmation
 OUT:
-- success: user deleted, 302 user list
+- success: user deleted, 302
 
 14) admin_adjust_points
 IN:
 - POST: value(int), reason(text)
 OUT:
 - success: PointAdjustment created, 302 to user edit
-- fail: HTML errors
+- fail: 200 with form errors
 
 15) admin_certificate_list
 IN:
-- GET query: status
+- GET query:
+  username, level, place, status, date_from, date_to, min_points, max_points, sort
 OUT:
-- HTML list of all certificates with moderation links
+- HTML list of certificates for moderation with applied filters
 
 16) admin_certificate_edit
 IN:
 - POST: title, event_level, place, event_date, status, custom_points
 OUT:
-- success: certificate updated, 302 certificate list
-- fail: HTML errors
+- success: certificate updated, 302
+- fail: 200 with form errors
 
 17) admin_certificate_delete
 IN:
-- POST: confirmation intent
+- POST confirmation
 OUT:
-- success: certificate deleted, 302 certificate list
+- success: certificate deleted, 302
 
 18) admin_statistics
 IN:
 - GET auth+admin
 OUT:
-- HTML analytics blocks:
-  by_level, by_place, top_scholarships, by_user
+- HTML analytics: by_level, by_place, top_scholarships, by_user
+
+API LAYER
+
+19) POST /api/v1/auth/token/
+IN:
+- JSON/form: username, password
+OUT:
+- 200: {token}
+
+20) GET /api/v1/me/
+IN:
+- Token/Session auth
+OUT:
+- 200: user brief fields (id, username, first_name, last_name, email, is_staff)
+
+21) GET|PUT|PATCH /api/v1/profile/
+IN:
+- profile fields (+ first_name/last_name via nested user)
+OUT:
+- 200: serialized StudentProfile
+
+22) GET|POST /api/v1/certificates/
+IN:
+- GET query: level, place, archived, sort
+- POST multipart/json: title, file, event_level, place, event_date
+OUT:
+- 200 list / 201 created with OCR attempt
+
+23) GET /api/v1/certificates/<id>/
+IN:
+- path id
+OUT:
+- 200 certificate detail for owner
+
+24) GET /api/v1/scholarships/ and /api/v1/scholarships/<id>/
+IN:
+- auth
+OUT:
+- active scholarships
+
+25) GET|POST /api/v1/calculations/ and GET /api/v1/calculations/<id>/
+IN:
+- POST: scholarship_id
+OUT:
+- persisted calculation with totals and eligibility
+
+26) ADMIN API /api/v1/admin/*
+IN:
+- admin auth
+OUT:
+- CRUD for users/certificates/adjustments, stats at /admin/statistics/

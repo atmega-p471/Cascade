@@ -1,98 +1,115 @@
-ERROR HANDLING BY METHOD (ENDPOINT LEVEL)
+ERROR HANDLING BY METHOD (CURRENT STATE)
 
 Legend:
 - 302 redirect
-- 400 form validation error (render form with errors)
-- 403 access denied by role
-- 404 object not found
+- 400 bad request / validation error (API)
+- 401 unauthorized (API, no auth)
+- 403 forbidden (API, role)
+- 404 object not found or no access
 - 405 method not allowed
 
-1) GET / (dashboard)
-   Errors:
-   - unauthenticated -> 302 to /login/
+WEB ENDPOINTS
+
+1) GET /
+- unauthenticated -> 302 /login/
 
 2) GET|POST /login/
-   Errors:
-   - invalid credentials -> 200 with form errors
+- invalid credentials -> 200 with form errors
 
 3) GET|POST /logout/
-   Errors:
-   - unsupported method (e.g. PUT) -> 405
+- unsupported method (PUT/DELETE) -> 405
 
 4) GET|POST /profile/
-   Errors:
-   - unauthenticated -> 302 /login/
-   - invalid profile payload on POST -> 200 with validation errors
-   - file upload issue -> 400 (form/file errors)
+- unauthenticated -> 302 /login/
+- invalid payload/files -> 200 with form errors
 
 5) GET /certificates/
-   Errors:
-   - unauthenticated -> 302 /login/
-   - invalid sort key -> fallback to "-event_date" (no hard error)
+- unauthenticated -> 302 /login/
+- invalid sort key -> fallback to "-event_date"
+- invalid filter values -> safe empty result or normal queryset behavior
 
 6) GET /certificates/<pk>/
-   Errors:
-   - unauthenticated -> 302 /login/
-   - certificate not owned by user or absent -> 404
+- unauthenticated -> 302 /login/
+- чужая или отсутствующая грамота -> 404
 
 7) GET|POST /certificates/new/
-   Errors:
-   - unauthenticated -> 302 /login/
-   - invalid form/file -> 200 with errors
-   - OCR dependency missing -> graceful fallback, extracted_text=""
+- unauthenticated -> 302 /login/
+- invalid form/file -> 200 with form errors
+- OCR stack not available -> graceful fallback, extracted_text=""
 
 8) GET|POST /calculate/
-   Errors:
-   - unauthenticated -> 302 /login/
-   - invalid scholarship id -> 200 with form errors
+- unauthenticated -> 302 /login/
+- invalid scholarship selection -> 200 with form errors
 
 9) GET /files/
-   Errors:
-   - unauthenticated -> 302 /login/
+- unauthenticated -> 302 /login/
 
 10) GET /management/users/
-    Errors:
-    - non-admin -> 302 (user_passes_test redirect flow)
+- non-admin -> 302
 
 11) GET|POST /management/users/create/
-    Errors:
-    - non-admin -> 302
-    - invalid user payload -> 200 with errors
-    - duplicate username -> 200 with form errors
+- non-admin -> 302
+- duplicate username/invalid fields -> 200 with form errors
 
 12) GET|POST /management/users/<pk>/edit/
-    Errors:
-    - non-admin -> 302
-    - user not found -> 404
-    - invalid user/profile payload -> 200 with errors
+- non-admin -> 302
+- user not found -> 404
+- invalid user/profile form -> 200 with errors
 
 13) GET|POST /management/users/<pk>/delete/
-    Errors:
-    - non-admin -> 302
-    - user not found -> 404
-    - wrong method other than GET/POST -> 405 (Django default view dispatch)
+- non-admin -> 302
+- user not found -> 404
 
 14) GET|POST /management/users/<pk>/adjust/
-    Errors:
-    - non-admin -> 302
-    - user not found -> 404
-    - invalid adjustment payload -> 200 with errors
+- non-admin -> 302
+- user not found -> 404
+- invalid adjustment form -> 200 with errors
 
 15) GET /management/certificates/
-    Errors:
-    - non-admin -> 302
+- non-admin -> 302
 
 16) GET|POST /management/certificates/<pk>/edit/
-    Errors:
-    - non-admin -> 302
-    - certificate not found -> 404
-    - invalid form payload -> 200 with errors
+- non-admin -> 302
+- certificate not found -> 404
+- invalid form -> 200 with errors
 
 17) GET|POST /management/certificates/<pk>/delete/
-    Errors:
-    - non-admin -> 302
-    - certificate not found -> 404
+- non-admin -> 302
+- certificate not found -> 404
 
 18) GET /management/statistics/
-    Errors:
-    - non-admin -> 302
+- non-admin -> 302
+
+API ENDPOINTS
+
+19) /api/v1/auth/token/
+- invalid credentials -> 400
+
+20) /api/v1/me/
+- no auth -> 401
+
+21) /api/v1/profile/ (GET|PUT|PATCH)
+- no auth -> 401
+- invalid payload -> 400
+
+22) /api/v1/certificates/ (GET|POST)
+- no auth -> 401
+- invalid payload/file -> 400
+
+23) /api/v1/certificates/<id>/
+- no auth -> 401
+- no object in user scope -> 404
+
+24) /api/v1/scholarships/ and /api/v1/scholarships/<id>/
+- no auth -> 401
+- missing object -> 404
+
+25) /api/v1/calculations/ and /api/v1/calculations/<id>/
+- no auth -> 401
+- invalid scholarship_id -> 400
+- no object in user scope -> 404
+
+26) /api/v1/admin/*
+- no auth -> 401
+- authenticated but not admin -> 403
+- invalid serializer payload -> 400

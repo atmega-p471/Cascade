@@ -27,3 +27,9 @@ DIAGRAMS PACKAGE (PGAS PLATFORM)
 
 9) method_io_messages.txt
    Входящие и исходящие сообщения по каждому endpoint-методу.
+
+Актуализация:
+- В методических файлах отражены текущие фильтры пользователя и администратора
+  (date_from/date_to/min_points/max_points, username/level/place/status/sort).
+- Добавлен актуальный слой REST API (/api/v1/*) в mappings / I/O / error handling.
+- Учтена текущая логика расчета effective points и архивирования грамот.

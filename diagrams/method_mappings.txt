@@ -1,6 +1,6 @@
-METHOD MAPPINGS
+METHOD MAPPINGS (CURRENT STATE)
 
-A) URL -> View mapping
+A) WEB URL -> VIEW MAPPING
 - / -> dashboard
 - /login/ -> django.auth.LoginView
 - /logout/ -> logout_view
@@ -20,7 +20,22 @@ A) URL -> View mapping
 - /management/certificates/<pk>/delete/ -> admin_certificate_delete
 - /management/statistics/ -> admin_statistics
 
-B) Form -> Model mapping
+B) API URL -> VIEW MAPPING (DRF)
+- /api/v1/auth/token/ -> obtain_auth_token
+- /api/v1/me/ -> me_api
+- /api/v1/profile/ -> ProfileApiView (GET/PUT/PATCH)
+- /api/v1/certificates/ -> CertificateApiViewSet (LIST/CREATE)
+- /api/v1/certificates/<id>/ -> CertificateApiViewSet (RETRIEVE)
+- /api/v1/scholarships/ -> ScholarshipApiViewSet (LIST/RETRIEVE)
+- /api/v1/calculations/ -> ScholarshipCalculationApiViewSet (LIST/CREATE)
+- /api/v1/calculations/<id>/ -> ScholarshipCalculationApiViewSet (RETRIEVE)
+- /api/v1/admin/users/ -> AdminUserApiViewSet (CRUD)
+- /api/v1/admin/certificates/ -> AdminCertificateApiViewSet (CRUD)
+- /api/v1/admin/adjustments/ -> AdminPointAdjustmentApiViewSet (CRUD)
+- /api/v1/admin/statistics/ -> AdminStatisticsApiView (GET)
+- /api/v1/schema/, /docs/, /redoc/ -> OpenAPI endpoints
+
+C) FORM -> MODEL MAPPING
 - StudentProfileForm -> StudentProfile (+ User.first_name, User.last_name)
 - CertificateForm -> Certificate
 - CertificateAdminForm -> Certificate
@@ -29,28 +44,29 @@ B) Form -> Model mapping
 - AdminUserCreateForm -> User
 - AdminUserUpdateForm -> User
 
-C) Role mapping
-- user.is_authenticated -> access to student endpoints
-- user.is_staff -> access to management endpoints
+D) ROLE MAPPING
+- user.is_authenticated -> доступ к студентским WEB/API endpoint
+- user.is_staff -> доступ к management WEB/API endpoint
 
-D) Business mapping (points)
+E) BUSINESS MAPPING (POINTS)
 - EVENT_LEVEL_SCORES:
   city=5, region=10, national=15, international=20, university=8
 - PLACE_MULTIPLIER:
   participant=1, prize_winner=2, winner=3
 - auto_points = EVENT_LEVEL_SCORES[event_level] * PLACE_MULTIPLIER[place]
-- effective_points = custom_points if custom_points is not null else auto_points
+- display/effective points = custom_points if custom_points is not null else auto_points
+- scholarship total = sum(approved certificate points except archived) + sum(adjustments)
 
-E) Certificate status mapping
-- pending: загружена, ожидает проверки
+F) CERTIFICATE STATUS MAPPING
+- pending: загружена, ожидает модерации
 - approved: подтверждена и участвует в расчетах
 - rejected: отклонена
-- archived: архивная (в основном для просроченных)
+- archived: архивная (автоматически при просрочке у approved)
 
-F) Filter/query mapping
-- /certificates/?level=... -> filter event_level
-- /certificates/?place=... -> filter place
-- /certificates/?sort=... -> order_by for allowed keys
-- /certificates/?archived=1 -> include archived
-- /management/certificates/?status=... -> admin status filter
-- /management/users/?q=... -> search by username/first_name/last_name
+G) FILTER/QUERY MAPPING
+- user certificates:
+  /certificates/?level=...&place=...&date_from=...&date_to=...&min_points=...&max_points=...&sort=...&archived=1
+- admin certificates:
+  /management/certificates/?username=...&level=...&place=...&status=...&date_from=...&date_to=...&min_points=...&max_points=...&sort=...
+- users:
+  /management/users/?q=... -> search by username/first_name/last_name

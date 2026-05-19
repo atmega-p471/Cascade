@@ -3,6 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
+from django.db.models.functions import Coalesce
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import get_object_or_404, redirect, render
@@ -65,9 +66,15 @@ def profile_edit(request):
 
 @login_required
 def certificate_list(request):
-    qs = Certificate.objects.filter(user=request.user)
+    qs = Certificate.objects.filter(user=request.user).annotate(
+        display_points=Coalesce("custom_points", "auto_points")
+    )
     level = request.GET.get("level")
     place = request.GET.get("place")
+    date_from = request.GET.get("date_from")
+    date_to = request.GET.get("date_to")
+    min_points = request.GET.get("min_points")
+    max_points = request.GET.get("max_points")
     sort = request.GET.get("sort", "-event_date")
     show_archived = request.GET.get("archived") == "1"
 
@@ -75,10 +82,25 @@ def certificate_list(request):
         qs = qs.filter(event_level=level)
     if place:
         qs = qs.filter(place=place)
+    if date_from:
+        qs = qs.filter(event_date__gte=date_from)
+    if date_to:
+        qs = qs.filter(event_date__lte=date_to)
+    if min_points:
+        qs = qs.filter(display_points__gte=min_points)
+    if max_points:
+        qs = qs.filter(display_points__lte=max_points)
     if not show_archived:
         qs = qs.exclude(status="archived")
 
-    allowed_sorting = {"event_date", "-event_date", "auto_points", "-auto_points", "created_at"}
+    allowed_sorting = {
+        "event_date",
+        "-event_date",
+        "display_points",
+        "-display_points",
+        "created_at",
+        "-created_at",
+    }
     if sort not in allowed_sorting:
         sort = "-event_date"
     qs = qs.order_by(sort)
@@ -90,6 +112,10 @@ def certificate_list(request):
             "certificates": qs,
             "selected_level": level or "",
             "selected_place": place or "",
+            "date_from": date_from or "",
+            "date_to": date_to or "",
+            "min_points": min_points or "",
+            "max_points": max_points or "",
             "sort": sort,
             "show_archived": show_archived,
         },
@@ -222,14 +248,63 @@ def admin_user_delete(request, pk):
 
 @user_passes_test(is_admin)
 def admin_certificate_list(request):
-    certificates = Certificate.objects.select_related("user")
+    certificates = Certificate.objects.select_related("user").annotate(
+        display_points=Coalesce("custom_points", "auto_points")
+    )
+    username = request.GET.get("username", "")
+    level = request.GET.get("level", "")
+    place = request.GET.get("place", "")
     status = request.GET.get("status", "")
+    date_from = request.GET.get("date_from")
+    date_to = request.GET.get("date_to")
+    min_points = request.GET.get("min_points")
+    max_points = request.GET.get("max_points")
+    sort = request.GET.get("sort", "-event_date")
+
+    if username:
+        certificates = certificates.filter(user__username__icontains=username)
+    if level:
+        certificates = certificates.filter(event_level=level)
+    if place:
+        certificates = certificates.filter(place=place)
     if status:
         certificates = certificates.filter(status=status)
+    if date_from:
+        certificates = certificates.filter(event_date__gte=date_from)
+    if date_to:
+        certificates = certificates.filter(event_date__lte=date_to)
+    if min_points:
+        certificates = certificates.filter(display_points__gte=min_points)
+    if max_points:
+        certificates = certificates.filter(display_points__lte=max_points)
+
+    allowed_sorting = {
+        "event_date",
+        "-event_date",
+        "display_points",
+        "-display_points",
+        "created_at",
+        "-created_at",
+    }
+    if sort not in allowed_sorting:
+        sort = "-event_date"
+    certificates = certificates.order_by(sort)
+
     return render(
         request,
         "core/admin/certificate_list.html",
-        {"certificates": certificates, "selected_status": status},
+        {
+            "certificates": certificates,
+            "username": username,
+            "selected_level": level,
+            "selected_place": place,
+            "selected_status": status,
+            "date_from": date_from or "",
+            "date_to": date_to or "",
+            "min_points": min_points or "",
+            "max_points": max_points or "",
+            "sort": sort,
+        },
     )
 
 

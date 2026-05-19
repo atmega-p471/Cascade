@@ -4,6 +4,21 @@
 <section class="panel">
     <h1 class="title">Модерация грамот</h1>
     <form method="get" class="inline">
+        <input type="text" name="username" value="{{ username }}" placeholder="Пользователь">
+        <select name="level">
+            <option value="">Все уровни</option>
+            <option value="city" {% if selected_level == "city" %}selected{% endif %}>Городской</option>
+            <option value="region" {% if selected_level == "region" %}selected{% endif %}>Областной</option>
+            <option value="national" {% if selected_level == "national" %}selected{% endif %}>Всероссийский</option>
+            <option value="international" {% if selected_level == "international" %}selected{% endif %}>Международный</option>
+            <option value="university" {% if selected_level == "university" %}selected{% endif %}>Вузовский</option>
+        </select>
+        <select name="place">
+            <option value="">Любое место</option>
+            <option value="participant" {% if selected_place == "participant" %}selected{% endif %}>Участник</option>
+            <option value="prize_winner" {% if selected_place == "prize_winner" %}selected{% endif %}>Призер</option>
+            <option value="winner" {% if selected_place == "winner" %}selected{% endif %}>Победитель</option>
+        </select>
         <select name="status">
             <option value="">Все статусы</option>
             <option value="pending" {% if selected_status == "pending" %}selected{% endif %}>На проверке</option>
@@ -11,6 +26,18 @@
             <option value="rejected" {% if selected_status == "rejected" %}selected{% endif %}>Отклонена</option>
             <option value="archived" {% if selected_status == "archived" %}selected{% endif %}>Архив</option>
         </select>
+        <select name="sort">
+            <option value="-event_date" {% if sort == "-event_date" %}selected{% endif %}>Сначала новые</option>
+            <option value="event_date" {% if sort == "event_date" %}selected{% endif %}>Сначала старые</option>
+            <option value="-display_points" {% if sort == "-display_points" %}selected{% endif %}>Баллы по убыванию</option>
+            <option value="display_points" {% if sort == "display_points" %}selected{% endif %}>Баллы по возрастанию</option>
+            <option value="-created_at" {% if sort == "-created_at" %}selected{% endif %}>По дате загрузки (новые)</option>
+            <option value="created_at" {% if sort == "created_at" %}selected{% endif %}>По дате загрузки (старые)</option>
+        </select>
+        <input type="date" name="date_from" value="{{ date_from }}" title="Дата с">
+        <input type="date" name="date_to" value="{{ date_to }}" title="Дата по">
+        <input type="number" name="min_points" value="{{ min_points }}" min="0" placeholder="Баллы от">
+        <input type="number" name="max_points" value="{{ max_points }}" min="0" placeholder="Баллы до">
         <button type="submit">Фильтр</button>
     </form>
 </section>

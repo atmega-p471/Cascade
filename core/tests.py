@@ -63,6 +63,67 @@ class AdminAccessTests(TestCase):
         response = self.client.get(reverse("admin_statistics"))
         self.assertEqual(response.status_code, 200)
 
+    def test_user_certificate_filters_by_points_and_date(self):
+        Certificate.objects.create(
+            user=self.user,
+            title="Старая",
+            file="certificates/old.pdf",
+            event_level="city",
+            place="participant",
+            event_date=date(2025, 1, 1),
+            custom_points=3,
+            status="approved",
+        )
+        Certificate.objects.create(
+            user=self.user,
+            title="Новая",
+            file="certificates/new.pdf",
+            event_level="international",
+            place="winner",
+            event_date=date(2026, 1, 1),
+            custom_points=60,
+            status="approved",
+        )
+        self.client.login(username="simple", password="pass12345")
+        response = self.client.get(
+            reverse("certificate_list"),
+            {"min_points": 50, "date_from": "2025-06-01"},
+        )
+        self.assertEqual(response.status_code, 200)
+        certificates = list(response.context["certificates"])
+        self.assertEqual(len(certificates), 1)
+        self.assertEqual(certificates[0].title, "Новая")
+
+    def test_admin_certificate_filters_by_username_and_level(self):
+        Certificate.objects.create(
+            user=self.user,
+            title="Грамота simple",
+            file="certificates/simple.pdf",
+            event_level="city",
+            place="participant",
+            event_date=date(2026, 1, 2),
+            status="pending",
+        )
+        other_user = User.objects.create_user(username="other", password="pass12345")
+        Certificate.objects.create(
+            user=other_user,
+            title="Грамота other",
+            file="certificates/other.pdf",
+            event_level="international",
+            place="winner",
+            event_date=date(2026, 1, 3),
+            status="approved",
+        )
+        self.client.login(username="admin2", password="pass12345")
+        response = self.client.get(
+            reverse("admin_certificate_list"),
+            {"username": "simp", "level": "city"},
+        )
+        self.assertEqual(response.status_code, 200)
+        certificates = list(response.context["certificates"])
+        self.assertEqual(len(certificates), 1)
+        self.assertEqual(certificates[0].title, "Грамота simple")
+
 
 class ApiTests(TestCase):
     def setUp(self):

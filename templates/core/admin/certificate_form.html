@@ -10,6 +10,8 @@
         {{ form.as_p }}
         <button type="submit">Сохранить</button>
     </form>
-    <a class="btn danger" href="{% url 'admin_certificate_delete' certificate.pk %}">Удалить грамоту</a>
+    <div style="margin-top: 10px;">
+        <a class="btn danger" href="{% url 'admin_certificate_delete' certificate.pk %}">Удалить грамоту</a>
+    </div>
 </section>
 {% endblock %}
