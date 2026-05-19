@@ -63,6 +63,13 @@ class AdminAccessTests(TestCase):
         response = self.client.get(reverse("admin_statistics"))
         self.assertEqual(response.status_code, 200)
 
+    def test_admin_cannot_open_student_pages(self):
+        self.client.login(username="admin2", password="pass12345")
+        self.assertEqual(self.client.get(reverse("certificate_list")).status_code, 302)
+        self.assertEqual(self.client.get(reverse("calculate_scholarship")).status_code, 302)
+        self.assertEqual(self.client.get(reverse("files_view")).status_code, 302)
+        self.assertEqual(self.client.get(reverse("profile_edit")).status_code, 302)
+
     def test_user_certificate_filters_by_points_and_date(self):
         Certificate.objects.create(
             user=self.user,

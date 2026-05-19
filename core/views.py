@@ -39,6 +39,10 @@ def is_admin(user):
     return user.is_staff
 
 
+def is_student(user):
+    return user.is_authenticated and not user.is_staff
+
+
 @require_http_methods(["GET", "POST"])
 def logout_view(request: HttpRequest) -> HttpResponse:
     logout(request)
@@ -47,6 +51,9 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def dashboard(request):
+    if request.user.is_staff:
+        return redirect("admin_certificate_list")
+
     certificates = Certificate.objects.filter(user=request.user)
     approved_points = sum_user_certificate_points(request.user)
     adjustments = sum_user_adjustments(request.user)
@@ -62,7 +69,7 @@ def dashboard(request):
     return render(request, "core/dashboard.html", context)
 
 
-@login_required
+@user_passes_test(is_student)
 def profile_edit(request):
     profile, _ = StudentProfile.objects.get_or_create(user=request.user)
     if request.method == "POST":
@@ -79,7 +86,7 @@ def profile_edit(request):
     return render(request, "core/profile_edit.html", {"form": form})
 
 
-@login_required
+@user_passes_test(is_student)
 def certificate_list(request):
     qs = Certificate.objects.filter(user=request.user).annotate(
         display_points=Coalesce("custom_points", "auto_points")
@@ -137,13 +144,13 @@ def certificate_list(request):
     )
 
 
-@login_required
+@user_passes_test(is_student)
 def certificate_detail(request, pk):
     certificate = get_object_or_404(Certificate, pk=pk, user=request.user)
     return render(request, "core/certificate_detail.html", {"certificate": certificate})
 
 
-@login_required
+@user_passes_test(is_student)
 def certificate_create(request):
     if request.method == "POST":
         form = CertificateForm(request.POST, request.FILES)
@@ -160,7 +167,7 @@ def certificate_create(request):
     return render(request, "core/certificate_form.html", {"form": form})
 
 
-@login_required
+@user_passes_test(is_student)
 def calculate_scholarship(request):
     result = None
     if request.method == "POST":
@@ -191,7 +198,7 @@ def calculate_scholarship(request):
     return render(request, "core/calculate.html", {"form": form, "result": result})
 
 
-@login_required
+@user_passes_test(is_student)
 def files_view(request):
     profile, _ = StudentProfile.objects.get_or_create(user=request.user)
     certificates = Certificate.objects.filter(user=request.user)
@@ -222,7 +229,7 @@ def admin_user_create(request):
         if form.is_valid():
             user = form.save()
             StudentProfile.objects.get_or_create(user=user)
-            log_admin_action(request.user, "user_created", target_user=user, details="Создан через сайт")
+            log_admin_action(request.user, "user_created", target_user=user, details="Создан через web")
             messages.success(request, "Пользователь создан.")
             return redirect("admin_user_list")
     else:

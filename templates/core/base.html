@@ -18,19 +18,6 @@
     <div class="brand">CASCADE | СГТУ</div>
     {% if request.user.is_authenticated %}
         <nav class="nav">
-            <a href="{% url 'dashboard' %}">Главная</a>
-            <a href="{% url 'certificate_list' %}">Грамоты</a>
-            <a href="{% url 'calculate_scholarship' %}">Расчет</a>
-            <a href="{% url 'files_view' %}">Файлы</a>
-            <a href="{% url 'notifications_view' %}">
-                Уведомления
-                {% if badge_notifications_overflow %}
-                    <span class="badge">99+</span>
-                {% elif badge_notifications %}
-                    <span class="badge">{{ badge_notifications }}</span>
-                {% endif %}
-            </a>
-            <a href="{% url 'profile_edit' %}">Профиль</a>
             {% if request.user.is_staff %}
                 <a href="{% url 'admin_user_list' %}">Пользователи</a>
                 <a href="{% url 'admin_certificate_list' %}">
@@ -44,6 +31,20 @@
                 <a href="{% url 'admin_statistics' %}">Статистика</a>
                 <a href="{% url 'admin_audit_logs' %}">Журнал аудита</a>
                 <a href="{% url 'admin_deadlines' %}">Сроки</a>
+            {% else %}
+                <a href="{% url 'dashboard' %}">Главная</a>
+                <a href="{% url 'certificate_list' %}">Грамоты</a>
+                <a href="{% url 'calculate_scholarship' %}">Расчет</a>
+                <a href="{% url 'files_view' %}">Файлы</a>
+                <a href="{% url 'notifications_view' %}">
+                    Уведомления
+                    {% if badge_notifications_overflow %}
+                        <span class="badge">99+</span>
+                    {% elif badge_notifications %}
+                        <span class="badge">{{ badge_notifications }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'profile_edit' %}">Профиль</a>
             {% endif %}
             <a href="{% url 'logout' %}">Выйти</a>
         </nav>
