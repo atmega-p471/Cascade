@@ -2,10 +2,13 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from .models import (
+    AdminAuditLog,
     Certificate,
+    Notification,
     PointAdjustment,
     Scholarship,
     ScholarshipCalculation,
+    ScholarshipDeadline,
     StudentProfile,
 )
 from .services import sum_user_adjustments, sum_user_certificate_points
@@ -50,6 +53,7 @@ class CertificateSerializer(serializers.ModelSerializer):
     points = serializers.IntegerField(read_only=True)
     is_expired = serializers.BooleanField(read_only=True)
     user = UserBriefSerializer(read_only=True)
+    reviewed_by = UserBriefSerializer(read_only=True)
 
     class Meta:
         model = Certificate
@@ -65,6 +69,10 @@ class CertificateSerializer(serializers.ModelSerializer):
             "custom_points",
             "points",
             "status",
+            "moderator_comment",
+            "rejection_reason",
+            "reviewed_by",
+            "reviewed_at",
             "is_expired",
             "extracted_text",
             "created_at",
@@ -75,6 +83,8 @@ class CertificateSerializer(serializers.ModelSerializer):
             "points",
             "is_expired",
             "extracted_text",
+            "reviewed_by",
+            "reviewed_at",
             "created_at",
             "updated_at",
         )
@@ -175,3 +185,33 @@ class AdminUserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ("id", "title", "message", "is_read", "created_at")
+        read_only_fields = ("created_at",)
+
+
+class AdminAuditLogSerializer(serializers.ModelSerializer):
+    actor = UserBriefSerializer(read_only=True)
+    target_user = UserBriefSerializer(read_only=True)
+    certificate = CertificateSerializer(read_only=True)
+
+    class Meta:
+        model = AdminAuditLog
+        fields = ("id", "actor", "action", "target_user", "certificate", "details", "created_at")
+
+
+class ScholarshipDeadlineSerializer(serializers.ModelSerializer):
+    scholarship = ScholarshipSerializer(read_only=True)
+    scholarship_id = serializers.PrimaryKeyRelatedField(
+        source="scholarship",
+        queryset=Scholarship.objects.all(),
+        write_only=True,
+    )
+
+    class Meta:
+        model = ScholarshipDeadline
+        fields = ("id", "scholarship", "scholarship_id", "start_date", "end_date", "note")

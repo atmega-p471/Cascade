@@ -1,6 +1,8 @@
 from django.db.models import Sum
+from django.utils import timezone
+from django.core.mail import send_mail
 
-from .models import Certificate
+from .models import AdminAuditLog, Certificate, Notification
 
 
 def try_extract_text(file_path: str) -> str:
@@ -26,3 +28,33 @@ def sum_user_certificate_points(user) -> int:
 def sum_user_adjustments(user) -> int:
     total = user.adjustments.aggregate(total=Sum("value"))["total"] or 0
     return int(total)
+
+
+def log_admin_action(actor, action: str, target_user=None, certificate=None, details: str = "") -> None:
+    AdminAuditLog.objects.create(
+        actor=actor,
+        action=action,
+        target_user=target_user,
+        certificate=certificate,
+        details=details,
+    )
+
+
+def notify_user_status_change(certificate, old_status: str, new_status: str) -> None:
+    title = "Изменен статус грамоты"
+    message = f'Грамота: "{certificate.title}"\nБыло: {old_status}\nСтало: {new_status}'
+    if certificate.rejection_reason:
+        message += f"\nПричина отклонения:\n{certificate.rejection_reason}"
+    if certificate.moderator_comment:
+        message += f"\nКомментарий модератора:\n{certificate.moderator_comment}"
+
+    Notification.objects.create(user=certificate.user, title=title, message=message)
+
+    if certificate.user.email:
+        send_mail(
+            subject=title,
+            message=message,
+            from_email=None,
+            recipient_list=[certificate.user.email],
+            fail_silently=True,
+        )

@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.utils import timezone
 from rest_framework import mixins, permissions, viewsets
+from rest_framework.exceptions import ValidationError
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework.decorators import api_view, permission_classes
@@ -9,15 +11,27 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .api_serializers import (
+    AdminAuditLogSerializer,
     AdminUserSerializer,
     CertificateSerializer,
+    NotificationSerializer,
     PointAdjustmentSerializer,
     ScholarshipCalculationSerializer,
+    ScholarshipDeadlineSerializer,
     ScholarshipSerializer,
     StudentProfileSerializer,
 )
-from .models import Certificate, PointAdjustment, Scholarship, ScholarshipCalculation, StudentProfile
-from .services import try_extract_text
+from .models import (
+    AdminAuditLog,
+    Certificate,
+    Notification,
+    PointAdjustment,
+    Scholarship,
+    ScholarshipCalculation,
+    ScholarshipDeadline,
+    StudentProfile,
+)
+from .services import log_admin_action, notify_user_status_change, try_extract_text
 
 
 class ProfileApiView(APIView):
@@ -136,6 +150,47 @@ class AdminCertificateApiViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
     queryset = Certificate.objects.select_related("user").all()
 
+    def perform_update(self, serializer):
+        current = self.get_object()
+        old_status = current.status
+        new_status = serializer.validated_data.get("status", current.status)
+        if old_status != new_status and not current.can_transition_to(new_status):
+            raise ValidationError(
+                {"status": f"Недопустимый переход статуса: {old_status} -> {new_status}"}
+            )
+        certificate = serializer.save(
+            reviewed_by=self.request.user if old_status != new_status else current.reviewed_by,
+            reviewed_at=timezone.now() if old_status != new_status else current.reviewed_at,
+        )
+        log_admin_action(
+            self.request.user,
+            "certificate_updated",
+            target_user=certificate.user,
+            certificate=certificate,
+            details="API update certificate",
+        )
+        if old_status != certificate.status:
+            log_admin_action(
+                self.request.user,
+                "status_changed",
+                target_user=certificate.user,
+                certificate=certificate,
+                details=f"{old_status} -> {certificate.status}",
+            )
+            notify_user_status_change(
+                certificate, dict(Certificate.STATUS_CHOICES).get(old_status, old_status), certificate.get_status_display()
+            )
+
+    def perform_destroy(self, instance):
+        log_admin_action(
+            self.request.user,
+            "certificate_deleted",
+            target_user=instance.user,
+            certificate=instance,
+            details="API delete certificate",
+        )
+        instance.delete()
+
 
 class AdminPointAdjustmentApiViewSet(viewsets.ModelViewSet):
     serializer_class = PointAdjustmentSerializer
@@ -143,7 +198,34 @@ class AdminPointAdjustmentApiViewSet(viewsets.ModelViewSet):
     queryset = PointAdjustment.objects.select_related("user", "created_by").all()
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        adjustment = serializer.save(created_by=self.request.user)
+        log_admin_action(
+            self.request.user,
+            "points_adjusted",
+            target_user=adjustment.user,
+            details=f"API adjustment {adjustment.value:+d}",
+        )
+
+
+class NotificationApiViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Notification.objects.none()
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
+
+
+class ScholarshipDeadlineApiViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ScholarshipDeadlineSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = ScholarshipDeadline.objects.select_related("scholarship").all()
+
+
+class AdminAuditLogApiViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AdminAuditLogSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = AdminAuditLog.objects.select_related("actor", "target_user", "certificate").all()
 
 
 class AdminStatisticsApiView(APIView):

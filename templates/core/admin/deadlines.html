@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% block title %}Дедлайны{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Дедлайны подачи</h1>
+    <p>Добавляйте периоды приема заявок на стипендии. Эти даты помогут контролировать сроки подачи.</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить дедлайн</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Список дедлайнов</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Стипендия</th>
+            <th>Начало</th>
+            <th>Окончание</th>
+            <th>Статус</th>
+            <th>Комментарий</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for d in deadlines %}
+            <tr>
+                <td>{{ d.scholarship.name }}</td>
+                <td>{{ d.start_date }}</td>
+                <td>{{ d.end_date }}</td>
+                <td>
+                    {% if d.end_date < today %}
+                        <span class="chip">Завершен</span>
+                    {% else %}
+                        <span class="chip">Активен</span>
+                    {% endif %}
+                </td>
+                <td>{{ d.note|default:"-" }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Дедлайны не добавлены.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

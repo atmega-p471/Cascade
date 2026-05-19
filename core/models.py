@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -94,6 +95,17 @@ class Certificate(models.Model):
     custom_points = models.PositiveIntegerField(
         "Ручные баллы (админ)", null=True, blank=True
     )
+    moderator_comment = models.TextField("Комментарий модератора", blank=True)
+    rejection_reason = models.TextField("Причина отклонения", blank=True)
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_certificates",
+        verbose_name="Проверил",
+    )
+    reviewed_at = models.DateTimeField("Дата проверки", null=True, blank=True)
     extracted_text = models.TextField("Распознанный текст", blank=True)
     status = models.CharField("Статус", max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -118,10 +130,29 @@ class Certificate(models.Model):
     def recalculate_points(self) -> None:
         self.auto_points = EVENT_LEVEL_SCORES[self.event_level] * PLACE_MULTIPLIER[self.place]
 
+    def can_transition_to(self, new_status: str) -> bool:
+        allowed = {
+            "pending": {"approved", "rejected"},
+            "approved": {"archived"},
+            "rejected": {"archived"},
+            "archived": set(),
+        }
+        return new_status in allowed.get(self.status, set())
+
     def save(self, *args, **kwargs):
+        previous_status = None
+        if self.pk:
+            previous_status = (
+                Certificate.objects.filter(pk=self.pk).values_list("status", flat=True).first()
+            )
         self.recalculate_points()
         if self.is_expired and self.status == "approved":
             self.status = "archived"
+        if previous_status and previous_status != self.status:
+            if not Certificate(status=previous_status).can_transition_to(self.status):
+                raise ValidationError(
+                    f"Недопустимый переход статуса: {previous_status} -> {self.status}"
+                )
         super().save(*args, **kwargs)
 
 
@@ -161,3 +192,66 @@ class ScholarshipCalculation(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.username} -> {self.scholarship.name}: {self.total_points}"
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    title = models.CharField("Заголовок", max_length=255)
+    message = models.TextField("Сообщение")
+    is_read = models.BooleanField("Прочитано", default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Уведомление"
+        verbose_name_plural = "Уведомления"
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return f"{self.user.username}: {self.title}"
+
+
+class AdminAuditLog(models.Model):
+    ACTION_CHOICES = (
+        ("user_created", "Создан пользователь"),
+        ("user_updated", "Обновлен пользователь"),
+        ("user_deleted", "Удален пользователь"),
+        ("certificate_updated", "Обновлена грамота"),
+        ("certificate_deleted", "Удалена грамота"),
+        ("points_adjusted", "Корректировка баллов"),
+        ("status_changed", "Изменение статуса грамоты"),
+        ("report_exported", "Выгружен отчет"),
+    )
+
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="audit_actions")
+    action = models.CharField("Действие", max_length=50, choices=ACTION_CHOICES)
+    target_user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="audit_targets"
+    )
+    certificate = models.ForeignKey(
+        Certificate, on_delete=models.SET_NULL, null=True, blank=True, related_name="audit_events"
+    )
+    details = models.TextField("Детали", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Журнал аудита"
+        verbose_name_plural = "Журнал аудита"
+        ordering = ("-created_at",)
+
+    def __str__(self) -> str:
+        return f"{self.get_action_display()} ({self.created_at:%Y-%m-%d %H:%M})"
+
+
+class ScholarshipDeadline(models.Model):
+    scholarship = models.ForeignKey(Scholarship, on_delete=models.CASCADE, related_name="deadlines")
+    start_date = models.DateField("Начало приема")
+    end_date = models.DateField("Окончание приема")
+    note = models.CharField("Комментарий", max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = "Дедлайн подачи"
+        verbose_name_plural = "Дедлайны подачи"
+        ordering = ("end_date",)
+
+    def __str__(self) -> str:
+        return f"{self.scholarship.name}: {self.start_date} - {self.end_date}"

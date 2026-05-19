@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from .models import Certificate, Scholarship
+from .models import AdminAuditLog, Certificate, Notification, Scholarship
 
 
 class AuthFlowTests(TestCase):
@@ -124,6 +124,86 @@ class AdminAccessTests(TestCase):
         self.assertEqual(len(certificates), 1)
         self.assertEqual(certificates[0].title, "Грамота simple")
 
+    def test_certificate_workflow_transition(self):
+        certificate = Certificate.objects.create(
+            user=self.user,
+            title="Процесс",
+            file="certificates/workflow.pdf",
+            event_level="city",
+            place="participant",
+            event_date=date(2026, 1, 2),
+            status="pending",
+        )
+        self.client.login(username="admin2", password="pass12345")
+        response = self.client.post(
+            reverse("admin_certificate_edit", kwargs={"pk": certificate.pk}),
+            {
+                "title": certificate.title,
+                "event_level": certificate.event_level,
+                "place": certificate.place,
+                "event_date": "2026-01-02",
+                "status": "approved",
+                "custom_points": "",
+                "moderator_comment": "Проверено",
+                "rejection_reason": "",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        certificate.refresh_from_db()
+        self.assertEqual(certificate.status, "approved")
+
+    def test_notification_created_on_status_change(self):
+        certificate = Certificate.objects.create(
+            user=self.user,
+            title="Уведомление",
+            file="certificates/notify.pdf",
+            event_level="city",
+            place="participant",
+            event_date=date(2026, 1, 2),
+            status="pending",
+        )
+        self.client.login(username="admin2", password="pass12345")
+        response = self.client.post(
+            reverse("admin_certificate_edit", kwargs={"pk": certificate.pk}),
+            {
+                "title": certificate.title,
+                "event_level": certificate.event_level,
+                "place": certificate.place,
+                "event_date": "2026-01-02",
+                "status": "approved",
+                "custom_points": "",
+                "moderator_comment": "Все ок",
+                "rejection_reason": "",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Notification.objects.filter(user=self.user, title__icontains="статус").exists())
+        self.assertTrue(AdminAuditLog.objects.filter(action="status_changed").exists())
+
+    def test_header_badges_context_for_admin(self):
+        Certificate.objects.create(
+            user=self.user,
+            title="Бейдж проверки",
+            file="certificates/pending.pdf",
+            event_level="city",
+            place="participant",
+            event_date=date(2026, 1, 2),
+            status="pending",
+        )
+        self.client.login(username="admin2", password="pass12345")
+        response = self.client.get(reverse("admin_certificate_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["badge_pending_certificates"], 1)
+
+    def test_notifications_delete_read(self):
+        Notification.objects.create(user=self.user, title="Непрочитано", message="M1", is_read=False)
+        Notification.objects.create(user=self.user, title="Прочитано", message="M2", is_read=True)
+        self.client.login(username="simple", password="pass12345")
+        response = self.client.post(reverse("notifications_view"), {"action": "delete_read"})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Notification.objects.filter(user=self.user).count(), 1)
+        self.assertTrue(Notification.objects.filter(user=self.user, title="Непрочитано").exists())
+
 
 class ApiTests(TestCase):
     def setUp(self):
@@ -191,3 +271,11 @@ class ApiTests(TestCase):
         response = self.client_api.get(reverse("api-admin-statistics"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("by_level", response.data)
+
+    def test_notifications_api(self):
+        Notification.objects.create(user=self.user, title="Тест", message="Сообщение")
+        token = Token.objects.create(user=self.user)
+        self.client_api.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        response = self.client_api.get(reverse("api-notifications-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)

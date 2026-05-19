@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+{% block title %}Журнал аудита{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Журнал аудита администраторов</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Когда</th>
+            <th>Администратор</th>
+            <th>Действие</th>
+            <th>Пользователь</th>
+            <th>Грамота</th>
+            <th>Детали</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in audit_logs %}
+            <tr>
+                <td>{{ row.created_at }}</td>
+                <td>{% if row.actor %}{{ row.actor.username }}{% else %}-{% endif %}</td>
+                <td>{{ row.get_action_display }}</td>
+                <td>{% if row.target_user %}{{ row.target_user.username }}{% else %}-{% endif %}</td>
+                <td>{% if row.certificate %}{{ row.certificate.title }}{% else %}-{% endif %}</td>
+                <td>{{ row.details|default:"-" }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">Журнал пока пуст.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

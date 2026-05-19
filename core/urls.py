@@ -13,6 +13,7 @@ urlpatterns = [
     path("certificates/<int:pk>/", views.certificate_detail, name="certificate_detail"),
     path("calculate/", views.calculate_scholarship, name="calculate_scholarship"),
     path("files/", views.files_view, name="files_view"),
+    path("notifications/", views.notifications_view, name="notifications_view"),
     path("management/users/", views.admin_user_list, name="admin_user_list"),
     path("management/users/create/", views.admin_user_create, name="admin_user_create"),
     path("management/users/<int:pk>/edit/", views.admin_user_edit, name="admin_user_edit"),
@@ -30,4 +31,8 @@ urlpatterns = [
         name="admin_certificate_delete",
     ),
     path("management/statistics/", views.admin_statistics, name="admin_statistics"),
+    path("management/audit/", views.admin_audit_logs, name="admin_audit_logs"),
+    path("management/deadlines/", views.admin_deadlines, name="admin_deadlines"),
+    path("management/reports/excel/", views.export_reports_excel, name="export_reports_excel"),
+    path("management/reports/pdf/", views.export_reports_pdf, name="export_reports_pdf"),
 ]

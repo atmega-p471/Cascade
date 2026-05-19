@@ -3,6 +3,10 @@
 {% block content %}
 <section class="panel">
     <h1 class="title">Статистика системы</h1>
+    <div class="inline" style="margin-bottom:10px;">
+        <a class="btn" href="{% url 'export_reports_excel' %}">Выгрузить Excel</a>
+        <a class="btn btn-muted" href="{% url 'export_reports_pdf' %}">Выгрузить PDF</a>
+    </div>
     <div class="grid">
         <article class="stat">
             <h3>По уровню мероприятий</h3>

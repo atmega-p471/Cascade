@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}PGAS Platform{% endblock %}</title>
+    <title>{% block title %}Cascade{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -22,11 +22,28 @@
             <a href="{% url 'certificate_list' %}">Грамоты</a>
             <a href="{% url 'calculate_scholarship' %}">Расчет</a>
             <a href="{% url 'files_view' %}">Файлы</a>
+            <a href="{% url 'notifications_view' %}">
+                Уведомления
+                {% if badge_notifications_overflow %}
+                    <span class="badge">99+</span>
+                {% elif badge_notifications %}
+                    <span class="badge">{{ badge_notifications }}</span>
+                {% endif %}
+            </a>
             <a href="{% url 'profile_edit' %}">Профиль</a>
             {% if request.user.is_staff %}
                 <a href="{% url 'admin_user_list' %}">Пользователи</a>
-                <a href="{% url 'admin_certificate_list' %}">Модерация</a>
+                <a href="{% url 'admin_certificate_list' %}">
+                    Проверка грамот
+                    {% if badge_pending_certificates_overflow %}
+                        <span class="badge">99+</span>
+                    {% elif badge_pending_certificates %}
+                        <span class="badge">{{ badge_pending_certificates }}</span>
+                    {% endif %}
+                </a>
                 <a href="{% url 'admin_statistics' %}">Статистика</a>
+                <a href="{% url 'admin_audit_logs' %}">Журнал аудита</a>
+                <a href="{% url 'admin_deadlines' %}">Сроки</a>
             {% endif %}
             <a href="{% url 'logout' %}">Выйти</a>
         </nav>

@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.header_badges',
             ],
         },
     },
@@ -146,6 +147,8 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'REST API для системы ПГАС Cascade',
     'VERSION': '1.0.0',
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

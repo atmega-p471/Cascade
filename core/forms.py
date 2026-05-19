@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import Certificate, PointAdjustment, Scholarship, StudentProfile
+from .models import Certificate, PointAdjustment, Scholarship, ScholarshipDeadline, StudentProfile
 
 
 class DateInput(forms.DateInput):
@@ -56,8 +56,28 @@ class CertificateForm(forms.ModelForm):
 class CertificateAdminForm(forms.ModelForm):
     class Meta:
         model = Certificate
-        fields = ("title", "event_level", "place", "event_date", "status", "custom_points")
+        fields = (
+            "title",
+            "event_level",
+            "place",
+            "event_date",
+            "status",
+            "custom_points",
+            "moderator_comment",
+            "rejection_reason",
+        )
         widgets = {"event_date": DateInput()}
+
+    def clean(self):
+        cleaned_data = super().clean()
+        status = cleaned_data.get("status")
+        rejection_reason = cleaned_data.get("rejection_reason", "").strip()
+        old_status = self.instance.status if self.instance and self.instance.pk else None
+        if status == "rejected" and not rejection_reason:
+            self.add_error("rejection_reason", "Укажите причину отклонения.")
+        if old_status and status and old_status != status and not self.instance.can_transition_to(status):
+            self.add_error("status", f"Недопустимый переход: {old_status} -> {status}")
+        return cleaned_data
 
 
 class ScholarshipCalculationForm(forms.Form):
@@ -93,3 +113,10 @@ class AdminUserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ("username", "first_name", "last_name", "email", "is_staff", "is_active")
+
+
+class ScholarshipDeadlineForm(forms.ModelForm):
+    class Meta:
+        model = ScholarshipDeadline
+        fields = ("scholarship", "start_date", "end_date", "note")
+        widgets = {"start_date": DateInput(), "end_date": DateInput()}

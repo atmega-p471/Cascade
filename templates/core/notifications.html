@@ -1,0 +1,45 @@
+{% extends "core/base.html" %}
+{% block title %}Уведомления{% endblock %}
+{% block content %}
+<section class="panel">
+    <h1 class="title">Уведомления</h1>
+    <div class="inline" style="margin-bottom: 12px;">
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="mark_read">
+            <button type="submit">Отметить все как прочитанные</button>
+        </form>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete_read">
+            <button type="submit" class="danger">Удалить прочитанные</button>
+        </form>
+    </div>
+    <ul style="list-style: none; padding-left: 0;">
+        {% for n in notifications %}
+            <li class="panel" style="margin-bottom: 10px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                    <strong>{{ n.title }}</strong>
+                    {% if not n.is_read %}<span class="chip">Новое</span>{% endif %}
+                </div>
+                {% for line in n.message.splitlines %}
+                    {% if line %}
+                        {% if line|slice:":21" == "Комментарий модератора:" or line|slice:":19" == "Причина отклонения:" %}
+                            <div><strong>{{ line }}</strong></div>
+                        {% elif line|slice:":5" == "Было:" or line|slice:":6" == "Стало:" %}
+                            <div><strong>{{ line|slice:":5" }}</strong>{{ line|slice:"5:" }}</div>
+                        {% elif line|slice:":7" == "Грамота:" %}
+                            <div><strong>Грамота:</strong> {{ line|slice:"8:" }}</div>
+                        {% else %}
+                            <div>{{ line }}</div>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                <small style="color:#6d7b90;">{{ n.created_at }}</small>
+            </li>
+        {% empty %}
+            <li>Уведомлений пока нет.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}

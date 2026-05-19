@@ -2,7 +2,8 @@
 {% block title %}Редактирование грамоты{% endblock %}
 {% block content %}
 <section class="panel">
-    <h1 class="title">Редактирование грамоты</h1>
+    <h1 class="title">Оценка грамоты</h1>
+    <p><strong>Статусы:</strong> На проверке -> Подтверждена/Отклонена -> В архиве</p>
     <p><strong>Пользователь:</strong> {{ certificate.user.username }}</p>
     <p><strong>Файл:</strong> <a href="{{ certificate.file.url }}" target="_blank">Открыть</a></p>
     <form method="post">
@@ -14,4 +15,18 @@
         <a class="btn danger" href="{% url 'admin_certificate_delete' certificate.pk %}">Удалить грамоту</a>
     </div>
 </section>
+<script>
+    (function () {
+        var statusField = document.getElementById("id_status");
+        var reasonField = document.getElementById("id_rejection_reason");
+        if (!statusField || !reasonField) return;
+        var reasonRow = reasonField.closest("p");
+        function toggleReason() {
+            if (!reasonRow) return;
+            reasonRow.style.display = statusField.value === "rejected" ? "" : "none";
+        }
+        statusField.addEventListener("change", toggleReason);
+        toggleReason();
+    })();
+</script>
 {% endblock %}
